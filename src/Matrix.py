@@ -135,8 +135,7 @@ class Matrix:
             if i > I:
                 row_first_input = self.elements[i][I]
                 for j in range(len(self.elements[0])):
-                    self.elements[i][
-                        j] -= row_first_input * self.elements[I][j]
+                    self.elements[i][j] -= row_first_input * self.elements[I][j]
 
         return self.elements
 
@@ -148,8 +147,7 @@ class Matrix:
             if i < I:
                 row_first_input = self.elements[i][I]
                 for j in range(len(self.elements[0])):
-                    self.elements[i][
-                        j] -= row_first_input * self.elements[I][j]
+                    self.elements[i][j] -= row_first_input * self.elements[I][j]
 
         return self.elements
 

@@ -1,4 +1,4 @@
-from src.Matrix import Matrix
+from src.matrix import Matrix
 class PolynomialRegressor:
     def __init__(self,degree):
         self.degree = degree

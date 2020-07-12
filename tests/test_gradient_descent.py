@@ -23,7 +23,7 @@ for f in funcs:
     gradient = minimizer.compute_gradient(delta = 0.01)
     minimizer.descend(scaling_factor=0.001, delta=0.01, num_steps=1)
     minimum = minimizer.minimum
-    outputs = [gradient, minimum]
+    outputs = [round(gradient,10), [round(min,10) for min in minimum]]
 
     actual_output = outputs
     desired_output = f[1]
@@ -31,25 +31,23 @@ for f in funcs:
     error_message_minimum = 'incorrect minimum for {}'.format(variable_func.__name__)
     details_gradient = '\nOUTPUT: {}\nDESIRED: {}'.format(actual_output[0], desired_output[0])
     details_minimum = '\nOUTPUT: {}\nDESIRED: {}'.format(actual_output[1], desired_output[1])
-    print("\nTesting compute_gradient for {}".format(variable_func.__name__))
+    print("Testing compute_gradient for {}".format(variable_func.__name__))
     assert actual_output[0] == desired_output[0], error_message_gradient + details_gradient
-    print("Passed")
-    print("\nTesting descent for {}".format(variable_func.__name__))
+    print("Testing descent for {}".format(variable_func.__name__))
     assert actual_output[1] == desired_output[1], error_message_minimum + details_minimum
-    print("Passed")
 
 
 
 correct_mins = [[0.75],[0.75,0.9],[0.75,0.9,1],[0.75, 0.9, 1, -2, -2, -2]]
-funcs = [[single_variable_function,[[0, 0.25, 0.75]]], [two_variable_function, [[0, 0.25, 0.75], [0.9, 1, 1.1]]], [three_variable_function, [[0, 0.25, 0.75], [0.9, 1, 1.1], [0, 1, 2, 3]]], [six_variable_function, [[0, 0.25, 0.75], [0.9, 1, 1.1], [0, 1, 2, 3], [-2, -1, 0, 1, 2], [-2, -1, 0, 1, 2], [-2, -1, 0, 1, 2]]]]
+funcs = [[single_variable_function,[[0, 0.25, 0.75]]], [two_variable_function, [[0, 0.25, 0.75], [0.9, 1, 1.1]]], [three_variable_function, [[0, 0.25, 0.75], [0.9, 1, 1.1], [0, 1, 2, 3]]], [six_variable_function, [[0, 0.25, 0.75], [0.9, 1, 1.1], [0, 1, 2, 3],
+                          [-2, -1, 0, 1, 2], [-2, -1, 0, 1, 2], [-2, -1, 0, 1, 2]]]]
 for i in range(len(funcs)):
     f = funcs[i][0]
-    print("\nTesting grid search for {}".format(f.__name__))
     minimizer = GradientDescent(f)
-    minimizer.grid_search(funcs[i][1])
+    minimizer.grid_search(f[i][1])
     desired_output = correct_mins[i]
     actual_output = minimizer.minimum
     error_message = 'incorrect minimum for {}'.format(f.__name__)
-    details = '\nOUTPUT: {}\nDESIRED: {}'.format(actual_output, desired_output) 
+    details = '\nOUTPUT: {}\nDESIRED: {}'.format(actual_output[1], desired_output[1])
+    print("Testing grid search for {}".format(f.__name__))
     assert actual_output == desired_output, error_message + details
-    print("Passed")

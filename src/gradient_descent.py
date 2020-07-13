@@ -1,4 +1,6 @@
-from src.cartesian_product import cartesian_product
+import sys
+sys.path.append('src')
+from cartesian_product import cartesian_product
 class GradientDescent():
     def __init__(self, f):
         self.f = f

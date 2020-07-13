@@ -1,2 +1,2 @@
-run = "python main.py"
+run = "python tests/test_gradient_descent.py"
 language = "python3" # optional

@@ -201,7 +201,7 @@ class Matrix:
                 inverse.append([])
                 for j in range(saver):
                     inverse[i].append(
-                        self.elements[i][len(self.elements[0]) - 3 + j])
+                        self.elements[i][len(self.elements[0]) - saver + j])
 
         return Matrix(inverse)
 

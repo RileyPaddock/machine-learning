@@ -199,12 +199,11 @@ class Matrix:
                     copy.elements[i].append(identity.elements[i][j])
 
             copy.rref()
-
-            for i in range(saver):
+            for _ in range(saver):
                 inverse.append([])
+            for i in reversed(range(saver)):
                 for j in range(saver):
-                    inverse[i].append(
-                        copy.elements[i][len(copy.elements) - saver - (j+1)])
+                    inverse[i].append(copy.elements[i][len(copy.elements[0]) - saver + (j)])
             
             return Matrix(inverse)
         elif len(self.elements) != len(self.elements[0]):

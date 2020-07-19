@@ -1,2 +1,2 @@
-run = "python tests/test_matrix.py"
+run = "python analysis/rocket_takeoff_regression.py"
 language = "python3" # optional

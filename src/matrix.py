@@ -20,7 +20,13 @@ class Matrix:
         for rows in range(len(self.elements)):
             print(self.elements[rows])
         print("-----------")
-
+    def copy(self):
+        copied_data = []
+        for i in range(len(self.elements)):
+            copied_data.append([])
+            for j in range(len(self.elements[0])):
+                copied_data[i].append(self.elements[i][j])
+        return Matrix(elements = copied_data)
     def add(input1, input2):
         result = []
         if range(len(input1.elements)) == range(len(input2.elements)):
@@ -156,7 +162,6 @@ class Matrix:
         return self.elements
 
     def rref(self):
-
         if len(self.elements) >= len(self.elements[0]):
             repetitions = self.elements[0]
         else:
@@ -170,7 +175,6 @@ class Matrix:
 
             if pivot1 != i:
                 self.swap_rows(i, pivot1)
-
             self.scale_row(i)
 
             self.clear_below(i)
@@ -189,9 +193,9 @@ class Matrix:
         return self
 
     def inverse(self):
-        copy = self
-        if len(self.elements) == len(self.elements[0]) and self.determinant != 0:
-            identity = Matrix(shape=(len(self.elements), len(self.elements[0])), fill='diag')
+        copy = self.copy()
+        if copy.determinant != 0 and len(copy.elements) == len(copy.elements[0]):
+            identity = Matrix(shape=(len(copy.elements), len(copy.elements[0])), fill='diag')
             inverse = []
             saver = len(copy.elements)
             for i in range(len(copy.elements)):
@@ -206,10 +210,11 @@ class Matrix:
                     inverse[i].append(copy.elements[i][len(copy.elements[0]) - saver + (j)])
             
             return Matrix(inverse)
-        elif len(self.elements) != len(self.elements[0]):
-            return Matrix(elements = [["Cannot find inverse due to size."]])
         elif copy.determinant() == 0:
             return Matrix(elements = [["Cannot find inverse due to matrix being singular."]])
+        elif len(copy.elements) != len(copy.elements[0]):
+            return Matrix(elements = [["Cannot find inverse due to size."]])
+        
 
     def calc_linear_approximation_coefficients(self, data, poly_degree):
         X = Matrix(shape=(len(data), 1))
@@ -223,33 +228,33 @@ class Matrix:
 
     def determinant(self):
         eventual_determinant = 1
-        save_for_end = self
-        if len(self.elements)>=len(self.elements[0]):
-            repetitions = self.elements[0]
+        copy = self.copy()
+        if len(copy.elements)>=len(copy.elements[0]):
+            repetitions = copy.elements[0]
         else:
-            repetitions = self.elements
+            repetitions = copy.elements
       
         for I in range(len(repetitions)):
-            if(self.get_pivot_row(I) == None):
+            if(copy.get_pivot_row(I) == None):
                 eventual_determinant = 0
             else:
-                pivot1 = self.get_pivot_row(I)
+                pivot1 = copy.get_pivot_row(I)
 
             if pivot1 != I:
-                self.swap_rows(I,pivot1)
+                copy.swap_rows(I,pivot1)
                 eventual_determinant *= -1
 
-            for i in range(len(self.elements[I])):
-                if self.elements[I][i] != 0:
-                    zero_val = self.elements[I][i]
-                break
-                for i in range(len(self.elements[I])):
-                    self.elements[I][i] /= zero_val
-                    eventual_determinant *= zero_val
-
-            self.clear_below(I)
-            self.clear_above(I)
-        self = save_for_end
+            for i in range(len(copy.elements[I])):
+                if copy.elements[I][i] != 0:
+                    zero_val = copy.elements[I][i]
+                    break
+            else:
+                zero_val = 1
+            for i in range(len(copy.elements[I])):
+                copy.elements[I][i] /= zero_val
+            eventual_determinant *= zero_val
+            copy.clear_below(I)
+            copy.clear_above(I)
         return eventual_determinant
 
     def recursive_determinant(self):
@@ -257,6 +262,14 @@ class Matrix:
 
     def inverse_by_minors(self):
         return self.inverse()
+
+    def round_down(self,digits):
+        rounded = []
+        for row in self.elements:
+            rounded.append([])
+            for entry in row:
+                rounded[self.elements.index(row)].append(round(entry,digits))
+        return Matrix(rounded)
 
     def __add__(self, B):
         return self.add(B)

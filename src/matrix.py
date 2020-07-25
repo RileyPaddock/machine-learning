@@ -173,12 +173,12 @@ class Matrix:
             else:
                 pivot1 = self.get_pivot_row(i)
 
-            if pivot1 != i:
-                self.swap_rows(i, pivot1)
-            self.scale_row(i)
+                if pivot1 != i:
+                    self.swap_rows(i, pivot1)
+                self.scale_row(i)
 
-            self.clear_below(i)
-            self.clear_above(i)
+                self.clear_below(i)
+                self.clear_above(i)
 
         for i in range(len(self.elements)):
             pos_self = [abs(ele) for ele in self.elements[i]]
@@ -263,7 +263,7 @@ class Matrix:
     def inverse_by_minors(self):
         return self.inverse()
 
-    def round_down(self,digits):
+    def round(self,digits):
         rounded = []
         for row in self.elements:
             rounded.append([])

@@ -1,2 +1,2 @@
-run = "python analysis/sandwich_rating.py"
+run = "python analysis/sandwich_ratings_interaction_terms.py"
 language = "python3" # optional

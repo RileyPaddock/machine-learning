@@ -1,2 +1,2 @@
-run = "python analysis/sandwich_ratings_dummy_variables.py"
+run = "python analysis/logistic_regression.py"
 language = "python3" # optional

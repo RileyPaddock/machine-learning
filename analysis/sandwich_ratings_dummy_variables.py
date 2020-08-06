@@ -21,7 +21,7 @@ import sys
 sys.path.append('src')
 from matrix import Matrix
 
-def apply_interactoin_terms(data,results):
+def apply_interactoin_terms(data,results,):
     matrix = data
     data1 = []
     data2 = []
@@ -35,8 +35,7 @@ def apply_interactoin_terms(data,results):
             matrix.elements[i].append(matrix.elements[i][data1[j]] * matrix.elements[i][data2[j]])
 
     for i in range(len(matrix.elements)):
-        # matrix.elements[i].append(results.elements[i][0])
-        matrix.elements[i].insert(0,0)
+        matrix.elements[i].append(results.elements[i][0])
     
     return matrix
 
@@ -44,7 +43,20 @@ def apply_interactoin_terms(data,results):
 
 
 
-def regress(Inputs,Results):
+def regress(data):
+    Inputs = []
+    Results = []
+    for i in range(len(data.elements)):
+        Inputs.append([])
+        for j in range(len(data.elements[i])-1):
+            Inputs[i].append(data.elements[i][j])
+    Inputs = Matrix(Inputs)
+    for i in range(len(data.elements)):
+        Results.append([data.elements[i][len(data.elements[i])-1]])
+    Results = Matrix(Results)
+
+    for i in range(len(Inputs.elements)):
+        Inputs.elements[i].insert(0,0)
     x_tpose = Inputs.transpose()
     data = ((x_tpose @ Inputs).inverse() @ (x_tpose @ Results)).elements
     result = []
@@ -84,10 +96,17 @@ sandwich_data  = Matrix(elements = [[ 0, 0, 0, 0],
  [5, 5, 1, 1]])
 sandwich_results = Matrix(elements = [[1], [1], [4], [0], [4], [8], [1], [0], [5], [0], [9], [0], [0], [0], [0], [0]])
 
-
-
 sandwich_data_with_interaction = apply_interactoin_terms(sandwich_data,sandwich_results)
-beta = regress(sandwich_data_with_interaction,sandwich_results)
+test = 0
+print("\n Testing Sum of Matrix Entries")
+for row in sandwich_data_with_interaction.elements:
+    for entry in row:
+        if entry != 0:
+            test += entry
+assert test == 313,'Sum of Matrix Entries is not 313'
+print("\n Passed")
+beta = regress(sandwich_data_with_interaction)
+
 # 2 slices beef + mayo: __
 # 2 slices beef + jelly: __
 # 3 tbsp peanut butter + jelly: __

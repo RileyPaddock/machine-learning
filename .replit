@@ -1,2 +1,2 @@
-run = "python analysis/logistic_regression.py"
+run = "python tests/logistic_regression_space_empires.py"
 language = "python3" # optional

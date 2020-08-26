@@ -1,2 +1,2 @@
-run = "python tests/logistic_regression_space_empires.py"
+run = "python src/dataframe.py"
 language = "python3" # optional

@@ -56,7 +56,7 @@ def regress(data):
     Results = Matrix(Results)
 
     for i in range(len(Inputs.elements)):
-        Inputs.elements[i].insert(0,0)
+        Inputs.elements[i].insert(0,1)
     x_tpose = Inputs.transpose()
     data = ((x_tpose @ Inputs).inverse() @ (x_tpose @ Results)).elements
     result = []
@@ -97,6 +97,7 @@ sandwich_data  = Matrix(elements = [[ 0, 0, 0, 0],
 sandwich_results = Matrix(elements = [[1], [1], [4], [0], [4], [8], [1], [0], [5], [0], [9], [0], [0], [0], [0], [0]])
 
 sandwich_data_with_interaction = apply_interactoin_terms(sandwich_data,sandwich_results)
+sandwich_data_with_interaction.show()
 test = 0
 print("\n Testing Sum of Matrix Entries")
 for row in sandwich_data_with_interaction.elements:
@@ -115,14 +116,14 @@ beta = regress(sandwich_data_with_interaction)
 
 
 print("\nCOEFFICIENTS")
- 
+
 print("\n   bias term: "+str(beta[0]))
- 
+
 print("\n   beef: "+str(beta[1]))
 print("\n   peanut butter: "+str(beta[2]))
 print("\n   mayo: "+str(beta[3]))
 print("\n   jelly: "+str(beta[4]))
- 
+
 print("\n   beef & peanut butter: "+str(beta[5]))
 print("\n   beef & mayo: "+str(beta[6]))
 print("\n   beef & jelly: "+str(beta[7]))

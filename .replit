@@ -1,2 +1,2 @@
-run = "python src/dataframe.py"
+run = "python tests/test_dataframe.py"
 language = "python3" # optional

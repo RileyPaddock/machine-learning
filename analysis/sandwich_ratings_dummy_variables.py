@@ -21,7 +21,7 @@ import sys
 sys.path.append('src')
 from matrix import Matrix
 
-def apply_interactoin_terms(data,results,):
+def apply_interactoin_terms(data,results):
     matrix = data
     data1 = []
     data2 = []

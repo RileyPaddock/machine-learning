@@ -34,7 +34,7 @@ class DataFrame:
                     data1.append(x-1)
                     data2.append(y-1)
         for i in range(len(matrix)):
-            for j in range(len(self.columns)):
+            for j in range(len(data1)):
                 matrix[i].append(matrix[i][data1[j]] * matrix[i][data2[j]])
         
         names_with_interaction = [column for column in self.columns]
@@ -52,13 +52,39 @@ class DataFrame:
         new_dict = self.data_dict
         data_columns = []
         for key in new_dict:
-            if isinstance(new_dict[key][0],str):
+            if isinstance(new_dict[key][0],str) or isinstance(new_dict[key][0],list):
                 data_columns.append(key)
         for key in data_columns:
-            for data in self.data_dict[key]:
-                new_dict[key + "_" + data] = [1 if data1 == data else 0 for data1 in self.data_dict[key]]
-            del new_dict[key]
+            if isinstance(new_dict[key][0], str):
+                for data in self.data_dict[key]:
+                    new_dict[data] = [1 if data1 == data else 0 for data1 in self.data_dict[key]]
+            elif isinstance(new_dict[key][0],list):
+                entries = []
+                for data_set in new_dict[key]:
+                    for entry in data_set:
+                        if entry not in entries:
+                            entries.append(entry)
+                data = self.get_data_from_list_entry(new_dict[key])
+                for i in range(len(entries)):
+                    new_dict[entries[i]] = data[i]
+            del new_dict[key] 
         return DataFrame(new_dict)
+
+    def get_data_from_list_entry(self,data):
+        entries = []
+        for data_set in data:
+            for entry in data_set:
+                if entry not in entries:
+                    entries.append(entry)
+        new_columns = []
+        for entry in entries:
+            new_columns.append([])
+            for data_set in data:
+                if entry in data_set:
+                    new_columns[entries.index(entry)].append(1)
+                else:
+                    new_columns[entries.index(entry)].append(0)
+        return new_columns
 
     def remove_columns(self,columns):
         new_dict = {}
@@ -67,8 +93,9 @@ class DataFrame:
                 new_dict[column] = self.data_dict[column]
         return DataFrame(new_dict)
 
-    def append_columns(self, new_dict_data):
+    def append_columns(self, new_dict_data, column_order = None):
         new_dict = self.data_dict
         for key in new_dict_data:
             new_dict[key] = new_dict_data[key]
         return DataFrame(new_dict)
+   

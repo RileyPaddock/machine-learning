@@ -1,2 +1,2 @@
-run = "python tests/test_dataframe.py"
+run = "python tests/test_linear_regressor.py"
 language = "python3" # optional

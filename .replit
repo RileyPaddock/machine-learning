@@ -1,2 +1,2 @@
-run = "python tests/test_linear_regressor.py"
+run = "python src/deprecated_polynomial_regressor.py"
 language = "python3" # optional

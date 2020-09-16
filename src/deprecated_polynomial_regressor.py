@@ -19,8 +19,15 @@ class PolynomialRegressor:
 
     def solve_coefficients(self):
         solve = Matrix(shape = (1,1))
+        X = Matrix(shape=(len(self.data), 1))
+        Y = Matrix(shape=(len(self.data), 1))
+        for i, (x, y) in enumerate(self.data):
+            X.elements[i] = [x**i for i in range(self.degree + 1)]
+            Y.elements[i] = [y]
+        x_tpose = X.transpose()
+        solve =  ((x_tpose @ X).inverse() @ (x_tpose @ Y)).elements
         for i in range(len(self.coefficients)):
-            self.coefficients[i] = solve.calc_linear_approximation_coefficients(self.data, self.degree)[i][0]
+            self.coefficients[i] = solve.elements[i][0]
 
     def derivative(self,x):
         tangent_line = PolynomialRegressor(1)
@@ -60,6 +67,8 @@ class PolynomialRegressor:
 #         best_error = p.sum_squared_error()
 #         best_fit = p.coefficients
 # print(best_fit)
-m = Matrix([[-1,1,-1,1,-2],[1,1,1,1,0],[8,4,2,1,3],[27,9,3,1,4]])
+m = Matrix([[-1,1,-1,1,-1,1],[1,1,1,1,1,1],[32,16,8,4,2,1],[243,81,27,9,3,1],[5,-4,3,-2,1,0],[405,108,27,6,1,0]])
+n = Matrix([[-2],[0],[3],[4],[0],[0]])
 m.show()
-m.rref().show()
+x_tpose = m.transpose()
+print(((x_tpose @ m).inverse() @ (x_tpose @ n)).elements)

@@ -13,7 +13,7 @@ class LinearRegressor:
         coefficients = ((x_tpose @ Inputs).inverse() @ (x_tpose @ Results)).elements
         i = 0
         for key in self.data.remove_columns([self.prediction_column]).data_dict:
-            result[key] = round(coefficients[i][0],2)
+            result[key] = round(coefficients[i][0], 8)
             i+=1
         return result
 

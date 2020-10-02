@@ -24,6 +24,17 @@ def add_terms_b(data):
             else:
                 data_dict[str(y)] = [adjusted_data[x][y]]
     return data_dict
+
+def add_terms_x(data):
+    adjusted_data = [[math.log(data[x][0]), math.exp(data[x][0]), (data[x][0]+1)**(0.5)] + [data[x][1]] for x in range(len(data))]
+    data_dict = {}
+    for x in range(len(adjusted_data)):
+        for y in range(len(adjusted_data[0])):
+            if str(y) in data_dict:
+                data_dict[str(y)].append(adjusted_data[x][y])
+            else:
+                data_dict[str(y)] = [adjusted_data[x][y]]
+    return data_dict
 data_a = [(0.0, 4.0),
  (0.2, 8.9),
  (0.4, 17.2),
@@ -84,4 +95,9 @@ data_b = [(0.0, 7.0),
 data_dict_b = add_terms_b(data_b)
 df = DataFrame(data_dict_b)
 regression = LinearRegressor(df,"4")
+print(regression.coefficients)
+
+data_dict_c = add_terms_x([(2, 27.0154), (3, 64.0912), (4, 159.817)])
+df = DataFrame(data_dict_c)
+regression = LinearRegressor(df,"3")
 print(regression.coefficients)

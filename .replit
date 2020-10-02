@@ -1,2 +1,2 @@
-run = "python analysis/signal_seperation.py"
+run = "python tests/test_dataframe.py"
 language = "python3" # optional

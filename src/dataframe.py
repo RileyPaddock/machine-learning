@@ -26,16 +26,12 @@ class DataFrame:
 
     def append_pairwise_interactions(self):
         matrix = self.to_array()
-        data1 = []
-        data2 = []
-        for x in range(1,len(matrix[0])+1):
-            for y in range(2,len(matrix[0])+1):
-                if y > x:
-                    data1.append(x-1)
-                    data2.append(y-1)
         for i in range(len(matrix)):
-            for j in range(len(data1)):
-                matrix[i].append(matrix[i][data1[j]] * matrix[i][data2[j]])
+            for x in range(len(self.columns)):
+                for y in range(len(self.columns)):
+                    if y > x:
+                        matrix[i].append(matrix[i][x] * matrix[i][y])
+                
         
         names_with_interaction = [column for column in self.columns]
         for name_1 in self.columns:

@@ -20,13 +20,17 @@ class LinearRegressor:
 
     def gather_all_inputs(self,input_set):
         result = {}
-        for key in input_set:
-            result[key] = input_set[key]
-        for key1 in input_set:
-            for key2 in input_set:
-                if key1 != key2 and (key1 + "_" + key2) not in result and (key2 + "_" + key1) not in result:
-                    result[key1 + "_" + key2] = input_set[key1]*input_set[key2]
-        result['constant'] = 1
+        if len(input_set)+2< len(self.data.columns):
+            for key in input_set:
+                result[key] = input_set[key]
+            for key1 in input_set:
+                for key2 in input_set:
+                    if key1 != key2 and (key1 + "_" + key2) not in result and (key2 + "_" + key1) not in result:
+                        result[key1 + "_" + key2] = input_set[key1]*input_set[key2]
+            result['constant'] = 1
+        elif len(input_set)+2 == len(self.data.columns):
+            result = {column:self.coefficients[column]*input_set[column] for column in input_set}
+            result['constant'] = 1
         return result
 
     

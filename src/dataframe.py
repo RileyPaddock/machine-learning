@@ -95,3 +95,48 @@ class DataFrame:
             new_dict[key] = new_dict_data[key]
         return DataFrame(new_dict)
    
+    @classmethod
+    def from_array(cls, arr, columns):
+        data_dict = {}
+        for i in range(len(columns)):
+            data_dict[columns[i]] = []
+            for j in range(len(arr)):
+                data_dict[columns[i]].append(arr[j][i])
+        df = cls(data_dict)
+        return df
+
+    def select_columns(self, columns):
+        return DataFrame({column:self.data_dict[column] for column in columns})
+        #returns a new dataframe of only columns in columns
+
+    def select_rows(self, indicies):
+        return DataFrame.from_array([entry for entry in self.to_array() if self.to_array().index(entry) in indicies], self.columns)
+        #returns a new dataframe of only the data of certain indicies in the arr
+
+    def select_rows_where(self, param):
+        arr = self.to_array()
+        correct_rows = []
+        for row in arr:
+            tranformed_row = {self.columns[i]:row[i] for i in range(len(row))}
+            if param(tranformed_row):
+                correct_rows.append(row)
+        return DataFrame.from_array(correct_rows, self.columns)
+
+
+    def order_by(self, column, ascending):
+        if ascending:
+            order = self.sorted_indicies(self.data_dict[column])
+            return DataFrame.from_array([self.to_array()[i] for i in order], self.columns)
+        else:
+            order = self.sorted_indicies(self.data_dict[column])[::-1]
+            return DataFrame.from_array([self.to_array()[i] for i in order], self.columns)
+
+        #returns a new dataframe with the rows now sorted in either alphabetical or numerical order 
+
+    def sorted_indicies(self, arr):
+        return [y for x,y in sorted([(arr[i],i) for i in range(len(arr))])]
+
+
+
+
+    

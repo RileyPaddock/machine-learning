@@ -9,7 +9,25 @@ data_dict = {
     'condiments': [[],['mayo'],['jelly'],['mayo','jelly'],
                    [],['mayo'],['jelly'],['mayo','jelly'],
                    [],['mayo'],['jelly'],['mayo','jelly'],
-                   [],['mayo'],['jelly'],['mayo','jelly']],
+                   [],['mayo'],['jelly'],['mayo','jelly']]
+}
+{
+'beef': [0, 0, 0, 0, 5, 5, 5, 5, 0, 0, 0, 0, 5, 5, 5, 5],
+'pb': [0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 5, 5, 5, 5, 5, 5],
+'mayo':[[],['mayo'],[],['mayo'],
+        [],['mayo'],[],['mayo'],
+        [],['mayo'],[],['mayo'],
+        [],['mayo'],[],['mayo']],
+'jelly': [[],[],['jelly'],['jelly'],
+          [],[],['jelly'],['jelly'],
+          [],[],['jelly'],['jelly'],
+          [],[],['jelly'],['jelly']]
+}
+{
+'beef': [0, 0, 0, 0, 5, 5, 5, 5, 0, 0, 0, 0, 5, 5, 5, 5],
+'pb': [0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 5, 5, 5, 5, 5, 5],
+'mayo':[0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+'jelly':[0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1]
 }
 df = DataFrame(data_dict)
 print("\n Testing columns of DataFrame")

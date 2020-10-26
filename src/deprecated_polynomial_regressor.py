@@ -25,7 +25,7 @@ class PolynomialRegressor:
             X.elements[i] = [x**i for i in range(self.degree + 1)]
             Y.elements[i] = [y]
         x_tpose = X.transpose()
-        solve =  ((x_tpose @ X).inverse() @ (x_tpose @ Y)).elements
+        solve =  ((x_tpose @ X).inverse() @ (x_tpose @ Y))
         for i in range(len(self.coefficients)):
             self.coefficients[i] = solve.elements[i][0]
 
@@ -67,8 +67,8 @@ class PolynomialRegressor:
 #         best_error = p.sum_squared_error()
 #         best_fit = p.coefficients
 # print(best_fit)
-m = Matrix([[-1,1,-1,1,-1,1],[1,1,1,1,1,1],[32,16,8,4,2,1],[243,81,27,9,3,1],[5,-4,3,-2,1,0],[405,108,27,6,1,0]])
-n = Matrix([[-2],[0],[3],[4],[0],[0]])
-m.show()
-x_tpose = m.transpose()
-print(((x_tpose @ m).inverse() @ (x_tpose @ n)).elements)
+# m = Matrix([[-1,1,-1,1,-1,1],[1,1,1,1,1,1],[32,16,8,4,2,1],[243,81,27,9,3,1],[5,-4,3,-2,1,0],[405,108,27,6,1,0]])
+# n = Matrix([[-2],[0],[3],[4],[0],[0]])
+# m.show()
+# x_tpose = m.transpose()
+# print(((x_tpose @ m).inverse() @ (x_tpose @ n)).elements)

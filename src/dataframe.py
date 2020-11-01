@@ -115,12 +115,12 @@ class DataFrame:
 
     def select_rows_where(self, param):
         arr = self.to_array()
-        correct_rows = []
+        indicies = []
         for row in arr:
             tranformed_row = {self.columns[i]:row[i] for i in range(len(row))}
             if param(tranformed_row):
-                correct_rows.append(row)
-        return DataFrame.from_array(correct_rows, self.columns)
+                indicies.append(arr.indes(row))
+        return self.select_rows(indicies)
 
 
     def order_by(self, column, ascending):

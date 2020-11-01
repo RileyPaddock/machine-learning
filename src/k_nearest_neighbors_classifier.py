@@ -25,5 +25,14 @@ class KNearestNeighborsClassifier:
         return averages
 
     def classify(self, observation, k):
-        top_k = [self.nearest_neighbors(observation).to_array()[i][1] for i in range(k)]
-        return max(set(top_k), key = top_k.count) 
+        top_k = [self.nearest_neighbors(observation).to_array()[i] for i in range(k)]
+        count = {}
+        for distance,classification in top_k:
+            count[classification] = 0
+        for distance,classification in top_k:
+            count[classification] += 1
+        maxes = sorted([(count[i],i) for i in count])
+        if len(maxes)>1 and maxes[0][0] == maxes[1][0]:
+            return [i for i in self.compute_average_distances(observation)][0]
+        else:
+            return maxes[0][1]

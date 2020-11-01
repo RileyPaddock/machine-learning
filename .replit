@@ -1,2 +1,2 @@
-run = "python tests/test_k_nearest_neighbors_classifier.py"
+run = "python tests/test_best_k.py"
 language = "python3" # optional

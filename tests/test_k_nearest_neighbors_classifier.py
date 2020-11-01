@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 import sys
 sys.path.append('src')
 from k_nearest_neighbors_classifier import KNearestNeighborsClassifier
@@ -17,6 +18,7 @@ df = DataFrame.from_array(
     ['Fortune'     ,     0.22     ,       0.15     ,      0.50     ,     0.13      ],
     ['Fortune'     ,     0.15     ,       0.20     ,      0.35     ,     0.30      ],
     ['Fortune'     ,     0.22     ,       0.00     ,      0.40     ,     0.38      ]],
+
     columns = ['Cookie Type' ,'Portion Eggs','Portion Butter','Portion Sugar','Portion Flour' ]
     )
 knn = KNearestNeighborsClassifier(df, prediction_column = 'Cookie Type')
@@ -27,46 +29,51 @@ observation = {
     'Portion Flour': 0.45
 }
 
-print(knn.compute_distances(observation).to_array())
-#Returns a dataframe representation of the following array:
+print("\nTesting compute_distances:")
+rounded = [[round(entry[0],3),entry[1]] for entry in knn.compute_distances(observation).to_array()] 
+assert rounded == [[0.047, 'Shortbread'], [0.037, 'Shortbread'],
+[0.062, 'Shortbread'],
+[0.122, 'Shortbread'],
+[0.158, 'Sugar'],
+[0.158, 'Sugar'],
+[0.088, 'Sugar'],
+[0.245, 'Sugar'],
+[0.212, 'Fortune'],
+[0.187, 'Fortune'],
+[0.396, 'Fortune'],
+[0.173, 'Fortune'],
+[0.228, 'Fortune']], 'Compute_distances_error'
+print("     passed")
 
-# [[0.047, 'Shortbread'],
-#  [0.037, 'Shortbread'],
-#  [0.062, 'Shortbread'],
-#  [0.122, 'Shortbread'],
-#  [0.158, 'Sugar'],
-#  [0.158, 'Sugar'],
-#  [0.088, 'Sugar'],
-#  [0.245, 'Sugar'],
-#  [0.212, 'Fortune'],
-#  [0.187, 'Fortune'],
-#  [0.396, 'Fortune'],
-#  [0.173, 'Fortune'],
-#  [0.228, 'Fortune']]
+print("\nTesting nearest_neighbors:")
+rounded = [[round(entry[0],3),entry[1]] for entry in knn.nearest_neighbors(observation).to_array()] 
+assert rounded == [[0.037, 'Shortbread'],
+ [0.047, 'Shortbread'],
+ [0.062, 'Shortbread'],
+ [0.088, 'Sugar'],
+ [0.122, 'Shortbread'],
+ [0.158, 'Sugar'],
+ [0.158, 'Sugar'],
+ [0.173, 'Fortune'],
+ [0.187, 'Fortune'],
+ [0.212, 'Fortune'],
+ [0.228, 'Fortune'],
+ [0.245, 'Sugar'],
+ [0.396, 'Fortune']], 'nearest_neighbors error'
+print("     passed")
 
-print(knn.nearest_neighbors(observation).to_array())
-#Returns a dataframe representation of the following array:
+print("\nTesting compute_average_distance:")
+rounded = {category:round(knn.compute_average_distances(observation)[category],3) for category in knn.compute_average_distances(observation)}
+assert rounded ==  {
+    'Shortbread': 0.067,
+    'Sugar': 0.162,
+    'Fortune': 0.239
+}, 'compute_avg_distances error'
+print("     passed")
 
-# [[0.037, 'Shortbread'],
-#  [0.047, 'Shortbread'],
-#  [0.062, 'Shortbread'],
-#  [0.088, 'Sugar'],
-#  [0.122, 'Shortbread'],
-#  [0.158, 'Sugar'],
-#  [0.158, 'Sugar'],
-#  [0.173, 'Fortune'],
-#  [0.187, 'Fortune'],
-#  [0.212, 'Fortune'],
-#  [0.228, 'Fortune'],
-#  [0.245, 'Sugar'],
-#  [0.396, 'Fortune']]
+print("\nTesting classify:")
+assert knn.classify(observation, k=5) == 'Shortbread', 'classify error'
+print("     passed")
 
-print(knn.compute_average_distances(observation))
-# {
-#     'Shortbread': 0.067,
-#     'Sugar': 0.162,
-#     'Fortune': 0.239
-# }
 
-print(knn.classify(observation, k=5))
-#'Shortbread'
+

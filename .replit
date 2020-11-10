@@ -1,2 +1,2 @@
-run = "python tests/test_best_k.py"
+run = "python tests/test_naive_bayes_classifier.py"
 language = "python3" # optional

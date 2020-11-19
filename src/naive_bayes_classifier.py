@@ -21,7 +21,7 @@ class NaiveBayesClassifier:
         _true = self.likelihood((self.dep_var,True),observations)
         _false = self.likelihood((self.dep_var,False),observations)
         if _true > _false:
-            return self.dep_var + "_True"
+            return (self.dep_var ,True)
         else:
-            return self.dep_var + "_False"
+            return (self.dep_var, False)
 

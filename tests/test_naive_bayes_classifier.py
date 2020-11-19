@@ -57,5 +57,5 @@ assert round(naive_bayes.likelihood(('scam',False), observed_features),3) == 0.0
 print("     passed")
 
 print("\n Testing Classify")
-assert naive_bayes.classify(observed_features) == 'scam_True'
+assert naive_bayes.classify(observed_features) == ('scam',True)
 print("     passed")

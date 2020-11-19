@@ -4,19 +4,12 @@ class NaiveBayesClassifier:
         self.dep_var = dependent_variable
 
     def probability(self, column, identifier):
-        return sum([1 for entry in self.df.data_dict[column] if entry == identifier])/len(self.df.data_dict[column])
+        return self.df.data_dict[column].count(identifier)/len(self.df.data_dict[column])
 
-    def conditional_probability(self,probability, given):
-        total = count = 0
-        arr = self.df.to_array()
-        p_i = self.df.columns.index(probability[0])
-        g_i = self.df.columns.index(given[0])
-        for i in range(len(arr)):
-            if arr[i][g_i] == given[1]:
-                total += 1
-                if arr[i][p_i] == probability[1]:
-                    count += 1
-        return count/total
+    def conditional_probability(self, probability, given):
+        total_given = self.df.select_rows_where(lambda x: x[given[0]] == given[1])
+        total_true = self.df.select_rows_where(lambda x: x[given[0]] == given[1] and x[probability[0]] == probability[1])
+        return len(total_true.to_array())/len(total_given.to_array())
 
     def likelihood(self,probability,observations):
         result = 1

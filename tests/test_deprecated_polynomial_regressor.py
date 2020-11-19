@@ -1,3 +1,4 @@
+import random
 import sys
 sys.path.append('src')
 from deprecated_polynomial_regressor import PolynomialRegressor
@@ -9,23 +10,37 @@ from deprecated_polynomial_regressor import PolynomialRegressor
 # [[1.1349206349217873, -0.8161375661377197, 1.3730158730155861, -0.009259259259233155],4.920634920634827],
 # [[0.9999999917480108, -2.950000002085698, 6.9583333345161265, -3.9583333337779045, 1.0416666667658463, -0.09166666667401097],4.999999990103076]]
 # degrees = [0,1,2,3,5]
+def most_frequent(_list): 
+    counter = 0
+    num = _list[0] 
+    for i in _list: 
+        curr_frequency = _list.count(i) 
+        if(curr_frequency> counter): 
+            counter = curr_frequency 
+            num = i 
+  
+    return num 
+
+def f(x, rand):
+        return 3+0.5*x**2+rand
+data = [(x/10,f(x/10,random.randint(-5,5))) for x in range(1,101)]
+smallest_error = []
+for _ in range(10):
+    rand = random.randint(-5,5)
+    train_error = []
+    test_error = []
+    for x in range(1,6):
+        regressor = PolynomialRegressor(degree = x)
+        regressor.ingest_data(data)
+        regressor.solve_coefficients()
+        train_error.append((regressor.sum_squared_error(),x))
+        regressor.data = [(i+0.4, f(i+0.4,rand)) for i in range(10)]+[(j+0.8, f(j+0.8,rand)) for j in range(10)]
+        test_error.append((regressor.sum_squared_error(),x))
+    print(test_error)
+    smallest_error.append(test_error.index(min(test_error))+1)
+print(smallest_error)
 
 
-data = [(0,0),
-        (1,1),
-        (-1,1),
-        (2,4),
-        (-2,4),
-        (3,9),
-        (-3,9),
-        (2.5,6.25),
-        (-2.5,6.25)]
-
-regressor = PolynomialRegressor(degree = 1)
-regressor.ingest_data(data)
-regressor.solve_coefficients()
-print(regressor.coefficients)
-print(regressor.evaluate(2))
 
 # for i in degrees:
 #     constant_regressor = PolynomialRegressor(degree=i)

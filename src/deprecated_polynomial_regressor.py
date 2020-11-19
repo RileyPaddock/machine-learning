@@ -34,21 +34,9 @@ class PolynomialRegressor:
         tangent_line.data = [(x - 0.001, self.evaluate(x-0.001)),(x + 0.001, self.evaluate(x+0.001))]
         tangent_line.solve_coefficients()
         return tangent_line.coefficients[1]
-    
-    def make_data_critical_points(self):
-        min = self.data[0]
-        max = self.data[0]
-        for x,y in self.data:
-            if y < min[1]:
-                min = (x,y)
-            elif y > max[1]:
-                max = (x,y)
-        self.data.append((max[0] - 0.01, max[1]-0.01))
-        self.data.append((max[0] + 0.01, max[1]-0.01))
-        self.data.append((min[0] - 0.01, min[1]+0.1))
-        self.data.append((min[0] + 0.01, min[1]+0.1))
-        self.data.remove(min)
-        self.data.remove(max)
+
+
+
 
 
 # p = PolynomialRegressor(3)

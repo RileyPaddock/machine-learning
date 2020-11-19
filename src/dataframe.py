@@ -119,7 +119,7 @@ class DataFrame:
         for row in arr:
             tranformed_row = {self.columns[i]:row[i] for i in range(len(row))}
             if param(tranformed_row):
-                indicies.append(arr.indes(row))
+                indicies.append(arr.index(row))
         return self.select_rows(indicies)
 
 

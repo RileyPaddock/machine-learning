@@ -1,8 +1,9 @@
 from dataframe import DataFrame
 class KNearestNeighborsClassifier:
-    def __init__(self, dataframe, prediction_column):
-        self.data = dataframe
-        self.prediction_column = prediction_column
+    def __init__(self, k):
+        self.k = k
+        self.data = None
+        self.prediction_column = None
 
     def compute_distances(self, observation):
         distances = []
@@ -24,8 +25,12 @@ class KNearestNeighborsClassifier:
             averages[entry] = averages[entry][0]/averages[entry][1]
         return averages
 
-    def classify(self, observation, k):
-        top_k = [self.nearest_neighbors(observation).to_array()[i] for i in range(k)]
+    def fit(self,df,dependant_variable):
+        self.data = df
+        self.prediction_column = dependant_variable
+
+    def classify(self, observation):
+        top_k = [self.nearest_neighbors(observation).to_array()[i] for i in range(self.k)]
         count = {}
         for distance,classification in top_k:
             count[classification] = 0

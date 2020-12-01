@@ -21,7 +21,8 @@ df = DataFrame.from_array(
 
     columns = ['Cookie Type' ,'Portion Eggs','Portion Butter','Portion Sugar','Portion Flour' ]
     )
-knn = KNearestNeighborsClassifier(df, prediction_column = 'Cookie Type')
+knn = KNearestNeighborsClassifier(3)
+knn.fit(df, dependant_variable = 'Cookie Type')
 observation = {
     'Portion Eggs': 0.10,
     'Portion Butter': 0.15,
@@ -71,8 +72,9 @@ assert rounded ==  {
 }, 'compute_avg_distances error'
 print("     passed")
 
+
 print("\nTesting classify:")
-assert knn.classify(observation, k=5) == 'Shortbread', 'classify error'
+assert knn.classify(observation) == 'Shortbread', 'classify error'
 print("     passed")
 
 

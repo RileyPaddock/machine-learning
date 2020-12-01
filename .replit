@@ -1,2 +1,2 @@
-run = "python tests/test_naive_bayes_classifier.py"
+run = "python tests/test_decision_tree.py"
 language = "python3" # optional

@@ -22,23 +22,14 @@ class DecisionTree:
 
         
 
-    def split_gini(self):
+    def split(self):
         lowest_level = self.lowest_level(self.root)
         if lowest_level == None:
             return 'Done'
-        split = lowest_level.best_split
-        greater = [entry for entry in lowest_level.df.to_array() if entry[ord(split[0])-120] >= split[1]]
-        less = [entry for entry in lowest_level.df.to_array() if entry[ord(split[0])-120] < split[1]]
-        lowest_level.high = Node(DataFrame.from_array(greater,['x','y','class','node_index']))
-        lowest_level.low = Node(DataFrame.from_array(less,['x','y','class','node_index']))
-    
-    def split_rand(self):
-        lowest_level = self.lowest_level(self.root)
-        if lowest_level == None:
-            return 'Done'
-        splits = [(i,j) for i,j,k in lowest_level.possible_splits.to_array()]
-        split = random.choice(splits)
-        print(split)
+        if self.split_metric =='gini':
+            split = lowest_level.best_split
+        elif self.split_metric == 'random':
+            split = random.choice([(i,j) for i,j,k in lowest_level.possible_splits.to_array()])
         greater = [entry for entry in lowest_level.df.to_array() if entry[ord(split[0])-120] >= split[1]]
         less = [entry for entry in lowest_level.df.to_array() if entry[ord(split[0])-120] < split[1]]
         lowest_level.high = Node(DataFrame.from_array(greater,['x','y','class','node_index']))
@@ -46,12 +37,8 @@ class DecisionTree:
 
     def fit(self, df):
         self.root = Node(df)
-        if self.split_metric == 'random':
-            while self.split_rand() == None:
-                self.split_rand
-        elif self.split_metric == 'gini':
-            while self.split_gini() == None:
-                self.split_gini()
+        while self.split() == None:
+            self.split()
 
     def classify(self, point, level = None):
         level = self.root if level is None else level

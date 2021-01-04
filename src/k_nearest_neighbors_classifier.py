@@ -1,43 +1,46 @@
 from dataframe import DataFrame
+
+
 class KNearestNeighborsClassifier:
     def __init__(self, k):
         self.k = k
-        self.data = None
-        self.prediction_column = None
+
+    def fit(self, df, dependent_variable):
+        self.df = df
+        self.dependent_variable = dependent_variable
 
     def compute_distances(self, observation):
-        distances = []
-        for i in range(len(self.data.to_array())):
-            distances.append([(sum([(observation[entry] - self.data.data_dict[entry][i])**2 for entry in observation]))**(0.5), self.data.to_array()[i][0]])
-        return DataFrame.from_array(distances, columns = ['distance', 'Cookie Type'])
+        rows = self.df.remove_columns([self.dependent_variable]).to_array()
+        types = self.df.get_column(self.dependent_variable)
+        c = [x for x in self.df.columns if x != self.dependent_variable]
+        obs = [observation[col] for col in c]
+        return DataFrame({'distances': [sum((x-y)**2 for x, y in zip(obs, rows[i]))**0.5 for i in range(len(rows))], 'types': types}, ['distances', 'types'])
 
     def nearest_neighbors(self, observation):
-        return DataFrame.from_array(sorted(self.compute_distances(observation).to_array()), columns = ['distance', 'Cookie Type']) 
+        return self.compute_distances(observation).order_by('distances', ascending=True)
 
-    def compute_average_distances(self, observation):
-        sorted_neighbors = self.nearest_neighbors(observation).to_array()
-        averages = {}
-        for entry in sorted_neighbors:
-            averages[entry[1]] = (0,0)
-        for entry in sorted_neighbors:
-            averages[entry[1]] = (averages[entry[1]][0]+entry[0], averages[entry[1]][1]+1)
-        for entry in averages:
-            averages[entry] = averages[entry][0]/averages[entry][1]
-        return averages
+    def compute_average_distances(self, obs, k=None):
+        k = len(self.df.get_column(self.dependent_variable)) if k is None else k
+        distances = self.compute_distances(obs).select_rows(range(k))
+        types = distances.get_column('types')
+        indices = {t: [i for i in range(
+            len(types)) if types[i] == t] for t in set(types)}
+        distances = distances.get_column('distances')
+        avgs = {t: sum(distances[i] for i in indices[t])/len(indices[t])
+                for t in set(types)}
+        return avgs
 
-    def fit(self,df,dependant_variable):
-        self.data = df
-        self.prediction_column = dependant_variable
-
-    def classify(self, observation):
-        top_k = [self.nearest_neighbors(observation).to_array()[i] for i in range(self.k)]
-        count = {}
-        for distance,classification in top_k:
-            count[classification] = 0
-        for distance,classification in top_k:
-            count[classification] += 1
-        maxes = sorted([(count[i],i) for i in count])
-        if len(maxes)>1 and maxes[0][0] == maxes[1][0]:
-            return [i for i in self.compute_average_distances(observation)][0]
+    def classify(self, obs):
+        near = self.nearest_neighbors(obs).select_rows(
+            range(self.k)).get_column("types")
+        type_counts = {t: near.count(t) for t in set(near)}
+        m = max(type_counts, key=type_counts.get)
+        if list(type_counts.values()).count(type_counts[m]) > 1:
+            avgs = self.compute_average_distances(obs, self.k)
+            print(avgs,min(avgs, key = avgs.get))
+            return min(avgs, key=avgs.get)
         else:
-            return maxes[0][1]
+            return m
+
+
+

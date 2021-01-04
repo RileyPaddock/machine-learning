@@ -44,6 +44,14 @@ class DataFrame:
             new_dict[names_with_interaction[i]] = [matrix[j][i] for j in range(len(matrix))]
         return DataFrame(new_dict)
 
+    def get_column(self, col):
+        if col in self.columns:
+            if col in self.data_dict.keys():
+                return self.data_dict[col].copy()
+            else:
+                return []
+
+
     def create_dummy_variables(self):
         new_dict = self.data_dict
         data_columns = []
@@ -112,6 +120,11 @@ class DataFrame:
     def select_rows(self, indicies):
         return DataFrame.from_array([entry for entry in self.to_array() if self.to_array().index(entry) in indicies], self.columns)
         #returns a new dataframe of only the data of certain indicies in the arr
+
+    def remove_row(self,index):
+        all_indicies = [i for i in range(len(self.to_array()))]
+        all_indicies.remove(index)
+        return self.select_rows(all_indicies)
 
     def select_rows_where(self, param):
         arr = self.to_array()

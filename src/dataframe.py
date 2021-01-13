@@ -19,6 +19,20 @@ class DataFrame:
     def filter_columns(self,new_columns):
         return DataFrame(self.data_dict, new_columns)
 
+    def swap_columns(self, column1_indx, column2_indx):
+        new_columns = [column for column in self.columns]
+        new_columns[column1_indx] = self.columns[column2_indx]
+        new_columns[column2_indx] = self.columns[column1_indx]
+        return DataFrame(self.data_dict, new_columns)
+
+
+    def rename_columns(self,new_columns):
+        new_dict = {}
+        for i  in range(len(new_columns)):
+            new_dict[new_columns[i]] = self.data_dict[self.columns[i]]
+        return DataFrame(new_dict, new_columns)
+
+
     def apply(self, column_name, function):
         temp_dict = self.data_dict
         temp_dict[column_name] = [function(elem) for elem in self.data_dict[column_name]]
@@ -112,6 +126,24 @@ class DataFrame:
                 data_dict[columns[i]].append(arr[j][i])
         df = cls(data_dict)
         return df
+
+    @classmethod
+    def from_csv(cls, filepath, header = False):
+        with open(filepath, "r") as file:
+            read = file.read()
+        data = []
+        for elem in read.split('\n'):
+            if read.split('\n').index(elem) != 0:
+                arr = [[x for x in item.split(',') if len(x)>0] for item in elem.split('"') if len(item)>0]
+                final = arr[0]+[float(x) for x in arr[1]]
+                data.append(final)
+            else:
+                classes = [item for item in elem.split('"') if len(item)>0 and item != ', ']
+                data.append(classes)
+        if header:
+            return cls.from_array(data, data[0])
+        else:
+            return cls.from_array([data[i] for i in range(len(data)) if i != 0], data[0])
 
     def select_columns(self, columns):
         return DataFrame({column:self.data_dict[column] for column in columns})

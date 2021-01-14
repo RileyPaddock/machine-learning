@@ -1,2 +1,2 @@
-run = "python tests/csv_decision_tree.py"
+run = "python analysis/8_queens.py"
 language = "python3" # optional

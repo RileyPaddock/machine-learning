@@ -58,16 +58,35 @@ def random_optimizer(n):
         for i in range(8):
             locs.append((random.randint(0,7),random.randint(0,7)))
         cost = calc_cost(locs)
-        if cost < best['cost']:
+        if cost < best['cost'] and len(locs) == len(set(locs)):
             best = {'locations':locs, 'cost':cost}
     return best
+    
+def steepest_descent_optimizer(n):
+    best = random_optimizer(100)
+    for _ in range(n):
+        for queen in range(len(best['locations'])):
+            for transition in [(0,1), (1,0), (0,-1), (-1,0), (1,-1), (-1,-1), (1,1), (-1,1)]:
+                test_locs = [best['locations'][i] if i != queen else (best['locations'][i][0]+transition[0], best['locations'][i][1]+transition[1]) for i in range(len(best['locations']))]
+                if in_bounds(test_locs) and len(test_locs) == len(set(test_locs)) and calc_cost(test_locs) <= best['cost']:
+                    best = {'locations': test_locs, 'cost' : calc_cost(test_locs)}
+    return best
+
+def in_bounds(locations):
+    for x,y in locations:
+        if x<0 or x>7 or y<0 or y>7:
+            return False
+    else:
+        return True
+            
+        
+        
+
             
 
+for n in [10,50,100,500,1000]:
+    print(n)
+    result = steepest_descent_optimizer(10)
+    print(result)
+    #show_board(result['locations'])
 
-locations = [(0,0), (6,1), (2,2), (5,3), (4,4), (7,5), (1,6), (2,6)]
-show_board(locations)
-print(calc_cost(locations))
-for n in [10,50,100, 500, 1000]:
-    print("\nNum runs: "+str(n))
-    best_result = random_optimizer(n)
-    print(best_result)

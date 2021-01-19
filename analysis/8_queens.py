@@ -65,11 +65,21 @@ def random_optimizer(n):
 def steepest_descent_optimizer(n):
     best = random_optimizer(100)
     for _ in range(n):
+        best_moves = []
         for queen in range(len(best['locations'])):
-            for transition in [(0,1), (1,0), (0,-1), (-1,0), (1,-1), (-1,-1), (1,1), (-1,1)]:
+            best_individual_move = []
+            for transition in [(0,0),(0,1), (1,0), (0,-1), (-1,0), (1,-1), (-1,-1), (1,1), (-1,1)]:
                 test_locs = [best['locations'][i] if i != queen else (best['locations'][i][0]+transition[0], best['locations'][i][1]+transition[1]) for i in range(len(best['locations']))]
-                if in_bounds(test_locs) and len(test_locs) == len(set(test_locs)) and calc_cost(test_locs) <= best['cost']:
-                    best = {'locations': test_locs, 'cost' : calc_cost(test_locs)}
+                if in_bounds(test_locs) and len(test_locs) == len(set(test_locs)):
+                    best_individual_move.append((test_locs,calc_cost(test_locs)))
+            individual_costs = [cost for loc,cost in best_individual_move]
+            best_moves.append(best_individual_move[individual_costs.index(min(individual_costs))])
+        costs = [cost for loc,cost in best_moves]
+        best_move = best_moves[costs.index(min(costs))]
+        if best_move[1] < best['cost']:
+            best = {'locations':best_move[0], 'cost':best_move[1]}
+        
+        
     return best
 
 def in_bounds(locations):
@@ -83,10 +93,9 @@ def in_bounds(locations):
         
 
             
-
 for n in [10,50,100,500,1000]:
     print(n)
-    result = steepest_descent_optimizer(10)
+    result = steepest_descent_optimizer(n)
     print(result)
     #show_board(result['locations'])
 

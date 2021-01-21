@@ -1,13 +1,14 @@
 import random
 from dataframe import DataFrame
 class DecisionTree:
-    def __init__(self, split_metric):
+    def __init__(self, split_metric, max_depth):
         self.split_metric = split_metric
+        self.max_depth = max_depth
         self.root = None
 
     def fit(self, df):
-        self.root = Node(df, self.split_metric)
-        while self.root.split():
+        self.root = Node(df, self.split_metric, 0)
+        while self.root.split(self.max_depth):
             pass
 
     def classify(self, point, level = None):
@@ -23,9 +24,10 @@ class DecisionTree:
 
 
 class Node:
-    def __init__(self,df, split_metric, goodness_check = False, visited = False):
+    def __init__(self,df, split_metric, depth, goodness_check = False, visited = False):
         self.df = df
         self.split_metric = split_metric
+        self.depth = depth
         self.low = None
         self.high = None
         self.row_indices = self.df.data_dict['node_index']
@@ -57,7 +59,7 @@ class Node:
                 greater.append(entry)
             else:
                 less.append(entry)
-        splits = [Node(DataFrame.from_array(greater,['x','y','class','node_index']),self.split_metric,True),Node(DataFrame.from_array(less,['x','y','class','node_index']),self.split_metric, True)]
+        splits = [Node(DataFrame.from_array(greater,['x','y','class','node_index']),self.split_metric,self.depth, True),Node(DataFrame.from_array(less,['x','y','class','node_index']),self.split_metric,self.depth, True)]
         for split in splits:
             to_be_summed.append((len(split.row_indices)/len(self.row_indices)) * split.impurity)
         return self.impurity - sum(to_be_summed)
@@ -79,21 +81,30 @@ class Node:
         max_goodness_index = goodness.index(max(goodness))
         return (self.possible_splits.to_array()[max_goodness_index][0],self.possible_splits.to_array()[max_goodness_index][1])
 
-    def split(self):
-        if self.low is None and self.impurity != 0: 
-                if self.split_metric == 'gini':
-                    split = self.best_split
-                elif self.split_metric == 'random':
-                    split = random.choice([(i,j) for i,j,k in self.possible_splits.to_array()])
-                self.low = Node(self.df.select_rows_where(
-                    lambda x: x[split[0]] <= split[1]), self.split_metric)
-                self.high = Node(self.df.select_rows_where(
-                    lambda x: x[split[0]] > split[1]), self.split_metric)
-                return True
-        elif self.impurity == 0:
-                return False
+    def split(self, max_depth):
+        if self.depth < max_depth:
+            if self.low is None and self.impurity != 0: 
+                    if self.split_metric == 'gini':
+                        split = self.best_split
+                    elif self.split_metric == 'random':
+                        split = random.choice([(i,j) for i,j,k in self.possible_splits.to_array()])
+                    self.low = Node(self.df.select_rows_where(
+                        lambda x: x[split[0]] <= split[1]), self.split_metric, self.depth+1)
+                    self.high = Node(self.df.select_rows_where(
+                        lambda x: x[split[0]] > split[1]), self.split_metric, self.depth+1)
+                    return True
+            elif self.impurity == 0:
+                    return False
+            else:
+                return self.low.split(max_depth) or self.high.split(max_depth)
         else:
-            return self.low.split() or self.high.split()
-
+            class_counts = [(self.class_counts[key], key) for key in self.class_counts]
+            class_count_nums = [count for count,class_ in class_counts]
+            if len(class_counts) == 1 or class_count_nums.count(max(class_count_nums)) == 1:
+                self.class_counts = {max(class_counts)[1]:max(class_counts)[0]}
+            else:
+                rand_choice = random.choice(class_counts)
+                self.class_counts = {rand_choice[1]:rand_choice[0]}
+            return False
 
         

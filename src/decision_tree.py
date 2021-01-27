@@ -1,7 +1,7 @@
 import random
 from dataframe import DataFrame
 class DecisionTree:
-    def __init__(self, split_metric, max_depth):
+    def __init__(self, split_metric, max_depth = 9999):
         self.split_metric = split_metric
         self.max_depth = max_depth
         self.root = None
@@ -35,7 +35,7 @@ class Node:
         self.impurity = self.calc_impurity()
         if not(goodness_check) and self.impurity != 0:
             self.possible_splits = self.possible_splits()
-            self.best_split = self.best_split()
+            self.best_split = self.calc_best_split()
 
     def calc_class_counts(self):
         class_count = {x[2]:0 for x in self.df.to_array()}
@@ -76,8 +76,11 @@ class Node:
                 possible_splits.append((i,(distinct[i][j]+distinct[i][j+1])/2))
         return DataFrame.from_array([[chr(120+entry[0]),entry[1],self.goodness_of_split(entry)] for entry in possible_splits],['axis','point','goodness of split'])
     
-    def best_split(self):
-        goodness = [x[2] for x in self.possible_splits.to_array()]
+    def calc_best_split(self, possible_splits = 'all'):
+        if possible_splits == 'all':
+            goodness = [x[2] for x in self.possible_splits.to_array()]
+        else:
+            goodness = [x[2] for x in possible_splits]
         max_goodness_index = goodness.index(max(goodness))
         return (self.possible_splits.to_array()[max_goodness_index][0],self.possible_splits.to_array()[max_goodness_index][1])
 
@@ -87,7 +90,8 @@ class Node:
                     if self.split_metric == 'gini':
                         split = self.best_split
                     elif self.split_metric == 'random':
-                        split = random.choice([(i,j) for i,j,k in self.possible_splits.to_array()])
+                        random_feature = random.choice(list(set([i for i,j,k in self.possible_splits.to_array()])))
+                        split = self.calc_best_split(possible_splits = [entry for entry in self.possible_splits.to_array() if entry[0] == random_feature])
                     self.low = Node(self.df.select_rows_where(
                         lambda x: x[split[0]] <= split[1]), self.split_metric, self.depth+1)
                     self.high = Node(self.df.select_rows_where(

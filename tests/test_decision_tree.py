@@ -36,9 +36,13 @@ dt.fit(df)
 # assert dt.classify({'x': 3.75, 'y': 10.5}) == 'A'
 # print("     passed")
 
-# print("Testing random splits")
-# dt = DecisionTree('random')
-# dt.fit(df)
+data = [[i,'A'] for i in range(50)]+[[j,'B'] for j in range(50,100)]
+df = DataFrame.from_array(data, columns = ['x', 'class'])
+df = df.append_columns({'node_index':[i for i in range(len(df.to_array()))]})
+
+print("Testing random splits")
+dt = DecisionTree('random')
+dt.fit(df)
 
 # df = DataFrame.from_array(
 #     [[1, 11, 'A'],

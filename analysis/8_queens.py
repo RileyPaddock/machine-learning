@@ -14,7 +14,7 @@ def show_board(locations):
 def calc_cost(locations):
     obstructions = []
     for queen in locations:
-        for elem in check_diag(queen, locations) + check_row(queen, locations) + check_columns(queen, locations):
+        for elem in check_diag(queen, locations) + check_axes(queen, locations):
             obstructions.append(elem)
 
     no_repeat = []
@@ -37,19 +37,13 @@ def check_diag(queen, locations):
             other_queens.append([(queen[0]-i, queen[1]+i), queen])
     return other_queens
 
-def check_row(queen, locations):
+def check_axes(queen, locations):
     other_queens = []
-    for loc in locations:
-        if loc[0] == queen[0] and loc != queen:
-            other_queens.append([loc, queen])
-    return other_queens
-
-def check_columns(queen, locations):
-    other_queens = []
-    for loc in locations:
-        if loc[1] == queen[1] and loc != queen:
-            other_queens.append([loc, queen])
-    return other_queens
+    for i in range(2):
+        for loc in locations:
+            if loc[i] == queen[i] and loc != queen:
+                other_queens.append([loc, queen])
+        return other_queens
 
 def random_optimizer(n):
     best = {'locations':[], 'cost': 100}

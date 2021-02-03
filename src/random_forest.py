@@ -1,6 +1,6 @@
 from dataframe import DataFrame
 from decision_tree import DecisionTree
-class RandomTree:
+class RandomForest:
     def __init__(self, num_trees):
         self.nt = num_trees
         self.trees = [DecisionTree('random') for _ in range(num_trees)]

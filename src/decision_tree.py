@@ -95,8 +95,10 @@ class Node:
             self.class_counts = {majority[1]:majority[0]}
         else:
             max_goodness_index = goodness.index(max(goodness))
-
-            return (self.possible_splits.to_array()[max_goodness_index][0],self.possible_splits.to_array()[max_goodness_index][1])
+            if possible_splits == 'all':
+                return (self.possible_splits.to_array()[max_goodness_index][0],self.possible_splits.to_array()[max_goodness_index][1])
+            else:
+                return (possible_splits[max_goodness_index][0],possible_splits[max_goodness_index][1])
     def split(self, max_depth):
         if self.depth < max_depth:
             if self.low is None and self.impurity != 0: 

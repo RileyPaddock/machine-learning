@@ -2,20 +2,21 @@ import sys
 sys.path.append('src')
 from dataframe import DataFrame
 from decision_tree import DecisionTree
+from random_forest import RandomForest
 
 
-data = [[x,y,'positive' if x*y > 0 else 'negative'] for x in range(-5,6) if x != 0 for y in range(-5,6) if y != 0]
+data = [[x,y,'positive' if x > 0 and y > 0 else 'negative'] for x in range(-5,6) if x != 0 for y in range(-5,6) if y != 0]
 df = DataFrame.from_array(data, columns = ['x','y', 'class'])
 print(len(df.to_array()))
 
 print("Testing random splits")
-dt = DecisionTree('random')
+dt = RandomForest(10)
 dt.fit(df)
 total = 0
 correct = 0
 for entry in df.to_array():
     total += 1
-    if dt.classify({'x':entry[0], 'y':entry[1]}) == entry[2]:
+    if dt.predict({'x':entry[0], 'y':entry[1]}) == entry[2]:
         correct += 1
 print("Decision Tree:"+str((correct/total)))
 
@@ -25,13 +26,13 @@ print(len(df.to_array()))
 
 
 print("Testing random splits")
-dt = DecisionTree('random')
+dt = RandomForest(10)
 dt.fit(df)
 total = 0
 correct = 0
 for entry in df.to_array():
     total += 1
-    if dt.classify({'x':entry[0], 'y':entry[1]}) == entry[2]:
+    if dt.predict({'x':entry[0], 'y':entry[1]}) == entry[2]:
         correct += 1
 print("Decision Tree:"+str((correct/total)))
 
@@ -41,13 +42,13 @@ print(len(df.to_array()))
 
 
 print("Testing random splits")
-dt = DecisionTree('random')
+dt = RandomForest(10)
 dt.fit(df)
 total = 0
 correct = 0
 for entry in df.to_array():
     total += 1
-    if dt.classify({'x':entry[0], 'y':entry[1], 'z':entry[2]}) == entry[3]:
+    if dt.predict({'x':entry[0], 'y':entry[1], 'z':entry[2]}) == entry[3]:
         correct += 1
 print("Decision Tree:"+str((correct/total)))
 
@@ -56,13 +57,13 @@ df = DataFrame.from_array(data, columns = ['x','y','z', 'class'])
 print(len(df.to_array()))
 
 print("Testing random splits")
-dt = DecisionTree('random')
+dt = RandomForest(10)
 dt.fit(df)
 total = 0
 correct = 0
 for entry in df.to_array():
     total += 1
-    if dt.classify({'x':entry[0], 'y':entry[1], 'z':entry[2]}) == entry[3]:
+    if dt.predict({'x':entry[0], 'y':entry[1], 'z':entry[2]}) == entry[3]:
         correct += 1
 print("Decision Tree:"+str((correct/total)))
 

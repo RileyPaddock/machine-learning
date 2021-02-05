@@ -10,9 +10,21 @@ class RandomForest:
             tree.fit(df)
     
     def predict(self, observation):
-        votes = []
+        classifications = []
         for tree in self.trees:
-            votes.append(tree.classify(observation))
-        d = {i:votes.count(i) for i in votes}
-        return sorted([(d[k],k) for k in d])[0][1]
+            prediction = tree.classify(observation)
+            classifications.append(prediction)
+        counted = self.count_predictons(classifications)
+        return self.return_max(counted)
+
+    def count_predictons(self, predictions):
+        counted = {}
+        for prediction in set(predictions):
+            counted[prediction] = predictions.count(prediction)
+        return counted
+
+    def return_max(self, counted):
+        keys = list(counted.keys())
+        counts = list(counted.values())
+        return keys[counts.index(max(counts))]
 

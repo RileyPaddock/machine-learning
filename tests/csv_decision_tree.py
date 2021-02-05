@@ -3,7 +3,7 @@ sys.path.append('src')
 from dataframe import DataFrame
 from decision_tree import DecisionTree
 from decision_tree import Node
-from random_tree import RandomTree
+from random_forest import RandomForest
 
 path_to_datasets = '/home/runner/machine-learning/datasets/'
 filename = 'freshman_lbs.csv' 
@@ -50,7 +50,7 @@ print("Decision Tree:"+str((correct/total)))
 for j in [1,10,100,1000]:
     total = 0
     correct = 0
-    rt = RandomTree(j)
+    rt = RandomForest(j)
     for i in range(len(sets[0])):
         rt.fit(sets[0][i])
         for test in sets[1][i].to_array():

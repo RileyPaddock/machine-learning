@@ -125,6 +125,7 @@ class Node:
             else:
                 rand_choice = random.choice(class_counts)
                 self.class_counts = {rand_choice[1]:rand_choice[0]}
+            self.impurity = 0
             return False
 
         

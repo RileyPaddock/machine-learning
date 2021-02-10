@@ -17,46 +17,24 @@ df = df.rename_columns(['x','y','class', 'node_index'])
 print(df.columns)
 
 
-def make_training_sets(data, num_sets):
-    training_sets = []
-    testing_sets = []
-    break_point = len(data.to_array())//num_sets
-    for i in range(num_sets):
-        sets = [[],[]]
-        for j in range(len(data.to_array())):
-            if j > (i*break_point) and j <= (i*break_point + break_point):
-                sets[1].append(data.to_array()[j])
-            else:
-                sets[0].append(data.to_array()[j])
-        training_sets.append(DataFrame.from_array(sets[0],data.columns))
-        testing_sets.append(DataFrame.from_array(sets[1],data.columns))
-    print('splits finished')
-    return [training_sets, testing_sets]
+def make_training_sets(data):
+    train = [elem for elem in data.to_array() if data.to_array().index(elem) <= len(data.to_array())//2]
+    test = [elem for elem in data.to_array() if data.to_array().index(elem) > len(data.to_array())//2]
+    return [DataFrame.from_array(train,data.columns), DataFrame.from_array(test,data.columns)]
 
-sets = make_training_sets(df, 5)
+sets = make_training_sets(df)
 
 
 
-total = 0
-correct = 0
-dt = DecisionTree('gini')
-for i in range(len(sets[0])):
-    dt.fit(sets[0][i])
-    for test in sets[1][i].to_array():
-        total += 1
-        if dt.classify({'x':test[0], 'y':test[1]}) == test[2]:
-            correct += 1
-print("Decision Tree:"+str((correct/total)))
-for j in [1,10,100,1000]:
+for j in [1,10,100,1000,10000]:
     total = 0
     correct = 0
-    rt = RandomForest(j)
-    for i in range(len(sets[0])):
-        rt.fit(sets[0][i])
-        for test in sets[1][i].to_array():
-            total += 1
-            if rt.predict({'x':test[0], 'y':test[1]}) == test[2]:
-                correct += 1
+    rt = RandomForest(j,4,0.3)
+    rt.fit(sets[0])
+    for test in sets[1].to_array():
+        total += 1
+        if rt.predict({'x':test[0], 'y':test[1]}) == test[2]:
+            correct += 1
     print(str(j)+" Random Tree(s):"+str((correct/total)))
 
         

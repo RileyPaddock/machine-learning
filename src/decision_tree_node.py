@@ -1,3 +1,5 @@
+import random
+from dataframe import DataFrame
 class Node:
     def __init__(self,df, split_metric, depth, goodness_check = False, visited = False):
         self.df = df
@@ -38,9 +40,7 @@ class Node:
                 greater.append(entry)
             else:
                 less.append(entry)
-        splits = 
-        [Node(DataFrame.from_array(greater,self.df.columns),self.split_metric,self.depth, True),
-        Node(DataFrame.from_array(less,self.df.columns),self.split_metric,self.depth, True)]
+        splits = [Node(DataFrame.from_array(greater,self.df.columns),self.split_metric,self.depth, True), Node(DataFrame.from_array(less,self.df.columns),self.split_metric,self.depth, True)]
         for split in splits:
             to_be_summed.append((len(split.row_indices)/len(self.row_indices)) * split.impurity)
         # 0.5 - 
@@ -54,9 +54,16 @@ class Node:
             for entry in self.df.to_array():
                 if entry[i] not in distinct[i]:
                     distinct[i].append(entry[i])
+        for i in range(len(distinct)):
+            distinct[i] = sorted(distinct[i])
+            
         for i in range(self.num_vars):
             for j in range(len(distinct[i])-1):
                 possible_splits.append((i,(distinct[i][j]+distinct[i][j+1])/2))
+
+        print([[features[entry[0]],entry[1],round(self.goodness_of_split(entry),2)]
+         for entry in possible_splits])
+
         return DataFrame.from_array([[features[entry[0]],entry[1],self.goodness_of_split(entry)]
          for entry in possible_splits],['axis','point','goodness of split'])
     
@@ -73,6 +80,7 @@ class Node:
         else:
             max_goodness_index = goodness.index(max(goodness))
             if possible_splits == 'all':
+                print(self.possible_splits.to_array()[max_goodness_index])
                 return (self.possible_splits.to_array()[max_goodness_index][0],
                 self.possible_splits.to_array()[max_goodness_index][1])
             else:

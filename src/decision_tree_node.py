@@ -61,9 +61,6 @@ class Node:
             for j in range(len(distinct[i])-1):
                 possible_splits.append((i,(distinct[i][j]+distinct[i][j+1])/2))
 
-        print([[features[entry[0]],entry[1],round(self.goodness_of_split(entry),2)]
-         for entry in possible_splits])
-
         return DataFrame.from_array([[features[entry[0]],entry[1],self.goodness_of_split(entry)]
          for entry in possible_splits],['axis','point','goodness of split'])
     
@@ -80,7 +77,6 @@ class Node:
         else:
             max_goodness_index = goodness.index(max(goodness))
             if possible_splits == 'all':
-                print(self.possible_splits.to_array()[max_goodness_index])
                 return (self.possible_splits.to_array()[max_goodness_index][0],
                 self.possible_splits.to_array()[max_goodness_index][1])
             else:

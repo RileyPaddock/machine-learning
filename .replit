@@ -1,2 +1,2 @@
-run = "python tests/csv_decision_tree.py"
+run = "python src/neural_network.py"
 language = "python3" # optional

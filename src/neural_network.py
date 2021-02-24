@@ -1,35 +1,60 @@
 import math
+from neuron import Neuron
 
 class NeuralNetwork:
-    def __init__(self,weights, activation_functions = None):
+    def __init__(self,weights, activation_types = None,activation_functions = None):
         self.weights = weights
+        self.num_nodes = list(set([x for x,y in self.weights]+[y for x,y in self.weights]))
         if activation_functions is None:
-            self.activation_functions = [lambda x: x for _ in list(set([x for x,y in self.weights]+[y for x,y in self.weights]))];
+            self.activation_types = ['linear' for _ in self.num_nodes]
+            self.activation_functions = {'linear':{'function':lambda x: x,'derivative':lambda x: 1} for _ in self.num_nodes};
         else:
+            self.activation_types = activation_types
             self.activation_functions = activation_functions
-        self.vertices = {x:0 for x in list(set([x for x,y in self.weights]+[y for x,y in self.weights]))}
-        self.inputs = list(set([x for x,y in weights]))
-        self.output = list(set([y for x,y in weights]))[0]
+
+        self.nodes = [
+            Neuron(0,self.activation_functions[self.activation_types[i]]['function'],self.activation_functions[self.activation_types[i]]['derivative']) 
+        for i in list(set([x for x,y in self.weights]))
+        ]+[
+            Neuron(0,self.activation_functions[self.activation_types[i]]['function'],self.activation_functions[self.activation_types[i]]['derivative'], 'output')
+         for i in list(set([y for x,y in self.weights]))]
+
+        self.inputs =  [neuron for neuron in self.nodes if neuron.type == 'input']
+        self.outputs = [neuron for neuron in self.nodes if neuron.type == 'output']
 
     def predict(self,inputs):
         for i in range(len(inputs)):
-            self.vertices[self.inputs[i]] = inputs[i]
+            self.nodes[i].value = self.nodes[i].activation_function(inputs[i])
 
         sum = 0
         for x,y in self.weights:
-            if y == self.output:
-                sum += self.vertices[x]*self.weights[(x,y)]
+            if self.nodes[y] in self.outputs:
+                sum += self.nodes[x].value*self.weights[(x,y)]
 
-        return sum
+        return self.outputs[0].activation_function(sum)
 
     def calc_squared_error(self, data_point):
         return (data_point['output'][0] - self.predict(data_point['input']))**2
 
     def calc_gradient(self, data_point):
         result = {edge:0 for edge in self.weights}
+        delta_y = (self.predict(data_point['input'])- data_point['output'][0])
+        self.set_output_activity(data_point['input'])
+        dy = self.outputs[0].activation_derivative(self.outputs[0].value) 
         for edge in self.weights:
-            result[edge] = -2*(data_point['output'][0] - self.predict(data_point['input'])) * data_point['input'][edge[0]]
+            result[edge] = 2*(delta_y) * dy*self.nodes[edge[0]].activation_function(data_point['input'][edge[0]])
         return result
+
+    def set_output_activity(self, inputs):
+        for i in range(len(inputs)):
+            self.nodes[i].value = self.nodes[i].activation_function(inputs[i])
+
+        sum = 0
+        for x,y in self.weights:
+            if self.nodes[y] in self.outputs:
+                sum += self.nodes[x].value*self.weights[(x,y)]
+    
+        self.outputs[0].value = sum
 
     def update_weights(self,data_point, learning_rate = 0.01):
         gradient = self.calc_gradient(data_point)
@@ -39,23 +64,44 @@ class NeuralNetwork:
 
 weights = {(0,2): -0.1, (1,2): 0.5}
 
-def linear_activation(x):
-    return x
-def sigmoidal_activation(x):
-    return 1/(1+math.exp(-x))
+def linear_function(x):
+        return x
+def linear_derivative(x):
+        return 1
+def sigmoidal_function(x):
+        return 1/(1+math.exp(-x))
+def sigmoidal_derivative(x):
+        s = sigmoidal_function(x)
+        return s * (1 - s)
 
-activation_functions = [linear_activation, linear_activation, sigmoidal_activation]
+activation_types = ['linear', 'linear', 'sigmoidal']
+activation_functions = {
+    'linear': {
+        'function': linear_function,
+        'derivative': linear_derivative
+    },
+    'sigmoidal': {
+        'function': sigmoidal_function,
+        'derivative': sigmoidal_derivative
+    }
+}
 
-nn = NeuralNetwork(weights, activation_functions)
-
+nn = NeuralNetwork(weights, activation_types, activation_functions)
+print(nn.predict([1,0]))
 data_points = [
-    {'input': [1,0], 'output': [0.2689]},
-    {'input': [1,1], 'output': [0.0474]},
-    {'input': [1,2], 'output': [0.0067]},
-    {'input': [1,3], 'output': [0.0009]}
+    {'input': [1,0], 'output': [0.1]},
+    {'input': [1,1], 'output': [0.2]},
+    {'input': [1,2], 'output': [0.4]},
+    {'input': [1,3], 'output': [0.7]}
     ]
-for _ in range(1000):
+for i in range(1,10001):
+        err = 0
         for data_point in data_points:
             nn.update_weights(data_point)
-
-print(nn.weights)
+            err += nn.calc_squared_error(data_point)
+        if i < 5 or i % 1000 == 0:
+            print('iteration {}'.format(i))
+            print('    gradient: {}'.format(nn.calc_gradient(data_point)))
+            print('    updated weights: {}'.format(nn.weights))
+            print('    error: {}'.format(err))
+            print()

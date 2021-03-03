@@ -13,25 +13,22 @@ class NeuralNetwork:
             self.activation_functions = activation_functions
 
         self.nodes = [
-            Neuron(0,self.activation_functions[self.activation_types[i]]['function'],self.activation_functions[self.activation_types[i]]['derivative']) 
+            Neuron(self.activation_functions[self.activation_types[i]]['function'],self.activation_functions[self.activation_types[i]]['derivative']) 
         for i in list(set([x for x,y in self.weights]))
         ]+[
-            Neuron(0,self.activation_functions[self.activation_types[i]]['function'],self.activation_functions[self.activation_types[i]]['derivative'], 'output')
+            Neuron(self.activation_functions[self.activation_types[i]]['function'],self.activation_functions[self.activation_types[i]]['derivative'], 'output')
          for i in list(set([y for x,y in self.weights]))]
 
         self.inputs =  [neuron for neuron in self.nodes if neuron.type == 'input']
         self.outputs = [neuron for neuron in self.nodes if neuron.type == 'output']
 
     def predict(self,inputs):
-        for i in range(len(inputs)):
-            self.nodes[i].value = self.nodes[i].activation_function(inputs[i])
-
         sum = 0
         for x,y in self.weights:
             if self.nodes[y] in self.outputs:
-                sum += self.nodes[x].value*self.weights[(x,y)]
+                sum += self.nodes[x].activity(inputs[x])*self.weights[(x,y)]
 
-        return self.outputs[0].activation_function(sum)
+        return self.outputs[0].activity(sum)
 
     def calc_squared_error(self, data_point):
         return (data_point['output'][0] - self.predict(data_point['input']))**2
@@ -39,22 +36,19 @@ class NeuralNetwork:
     def calc_gradient(self, data_point):
         result = {edge:0 for edge in self.weights}
         delta_y = (self.predict(data_point['input'])- data_point['output'][0])
-        self.set_output_activity(data_point['input'])
-        dy = self.outputs[0].activation_derivative(self.outputs[0].value) 
+        output_activity = self.find_output_activity(data_point['input'])
+        dy = self.outputs[0].activation_derivative(output_activity) 
         for edge in self.weights:
-            result[edge] = 2*(delta_y) * dy*self.nodes[edge[0]].activation_function(data_point['input'][edge[0]])
+            result[edge] = 2*(delta_y) * dy*self.nodes[edge[0]].activity(data_point['input'][edge[0]])
         return result
 
-    def set_output_activity(self, inputs):
-        for i in range(len(inputs)):
-            self.nodes[i].value = self.nodes[i].activation_function(inputs[i])
-
+    def find_output_activity(self, inputs):
         sum = 0
         for x,y in self.weights:
             if self.nodes[y] in self.outputs:
-                sum += self.nodes[x].value*self.weights[(x,y)]
+                sum += self.nodes[x].activity(inputs[x])*self.weights[(x,y)]
     
-        self.outputs[0].value = sum
+        return sum
 
     def update_weights(self,data_point, learning_rate = 0.01):
         gradient = self.calc_gradient(data_point)

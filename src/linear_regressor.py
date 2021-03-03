@@ -2,19 +2,19 @@ from matrix import Matrix
 from dataframe import DataFrame
 class LinearRegressor:
     def __init__(self,data_class, prediction_column):
-        self.data = data_class
+        self.data = data_class.append_columns({'constant': [1 for _ in range(len(data_class.to_array()))]})
         self.prediction_column = prediction_column
         self.coefficients = self.solve_coefficients()
 
     def solve_coefficients(self):
         result = {}
         Inputs = Matrix(self.data.remove_columns([self.prediction_column]).to_array())
-        Results = Matrix(self.data.remove_columns([key for key in self.data.data_dict if key != self.prediction_column]).to_array())
+        Results = Matrix(self.data.filter_columns([self.prediction_column]).to_array())
         x_tpose = Inputs.transpose()
         coefficients = ((x_tpose @ Inputs).inverse() @ (x_tpose @ Results)).elements
         i = 0
         for key in self.data.remove_columns([self.prediction_column]).data_dict:
-            result[key] = round(coefficients[i][0], 8)
+            result[key] = coefficients[i][0]
             i+=1
         return result
 
@@ -35,8 +35,7 @@ class LinearRegressor:
 
     
     def predict(self, input_set):
-        inputs = self.gather_all_inputs(input_set)
-        result = sum([inputs[key]*self.coefficients[key] for key in inputs])
+        result = sum([input_set[key]*self.coefficients[key] for key in input_set])
         return result
 
 

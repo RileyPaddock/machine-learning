@@ -20,7 +20,7 @@ class DecisionTree:
         point_list = [point[k] for k in point]
         if level.impurity == 0:
             for key in level.class_counts:
-                return key 
+                return key
         elif point_list[self.features.index(level.node_split[0])] > level.node_split[1]:
             return self.classify(point,level.high)
         elif point_list[self.features.index(level.node_split[0])] <= level.node_split[1]:

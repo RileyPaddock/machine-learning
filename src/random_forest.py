@@ -10,6 +10,7 @@ class RandomForest:
 
     def fit(self, df):
         for tree in self.trees:
+            print(self.trees.index(tree))
             reduced_data = self.percentage_of_data(df)
             tree.fit(reduced_data)
 

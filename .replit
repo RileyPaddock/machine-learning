@@ -1,2 +1,2 @@
-run = "python src/neural_network.py"
+run = "python analysis/titanic_analysis.py"
 language = "python3" # optional

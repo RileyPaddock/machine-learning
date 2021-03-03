@@ -17,9 +17,9 @@ class Node:
             self.best_split = self.calc_best_split()
 
     def calc_class_counts(self):
-        class_count = {x[len(x)-2]:0 for x in self.df.to_array()}
+        class_count = {x[-2]:0 for x in self.df.to_array()}
         for x in self.df.to_array():
-            class_count[x[len(x)-2]]+=1
+            class_count[x[-2]]+=1
         return class_count
     
     def calc_impurity(self):
@@ -43,7 +43,6 @@ class Node:
         splits = [Node(DataFrame.from_array(greater,self.df.columns),self.split_metric,self.depth, True), Node(DataFrame.from_array(less,self.df.columns),self.split_metric,self.depth, True)]
         for split in splits:
             to_be_summed.append((len(split.row_indices)/len(self.row_indices)) * split.impurity)
-        # 0.5 - 
         return self.impurity - sum(to_be_summed)
 
     def possible_splits(self):
@@ -77,11 +76,17 @@ class Node:
         else:
             max_goodness_index = goodness.index(max(goodness))
             if possible_splits == 'all':
-                return (self.possible_splits.to_array()[max_goodness_index][0],
-                self.possible_splits.to_array()[max_goodness_index][1])
+                if max(goodness) > 0.01:
+                    return (self.possible_splits.to_array()[max_goodness_index][0],
+                    self.possible_splits.to_array()[max_goodness_index][1])
+                else:
+                    return None
             else:
-                return (possible_splits[max_goodness_index][0],
-                possible_splits[max_goodness_index][1])
+                if max(goodness) > 0.01:
+                    return (possible_splits[max_goodness_index][0],
+                    possible_splits[max_goodness_index][1])
+                else:
+                    return None
     def split(self, max_depth):
         if self.depth < max_depth:
             if self.low is None and self.impurity != 0: 
@@ -92,23 +97,30 @@ class Node:
                         self.possible_splits.to_array()])))
                         split = self.calc_best_split(possible_splits = [entry for entry in
                         self.possible_splits.to_array() if entry[0] == random_feature])
-                    self.node_split = split
-                    self.low = Node(self.df.select_rows_where(
-                        lambda x: x[split[0]] <= split[1]), self.split_metric, self.depth+1)
-                    self.high = Node(self.df.select_rows_where(
-                        lambda x: x[split[0]] > split[1]), self.split_metric, self.depth+1)
-                    return True
+                    if split is not None:
+                        print(split)
+                        self.node_split = split
+                        self.low = Node(self.df.select_rows_where(
+                            lambda x: x[split[0]] <= split[1]), self.split_metric, self.depth+1)
+                        self.high = Node(self.df.select_rows_where(
+                            lambda x: x[split[0]] > split[1]), self.split_metric, self.depth+1)
+                        return True
+                    else:
+                        self.create_end_node()
             elif self.impurity == 0:
                     return False
             else:
                 return self.low.split(max_depth) or self.high.split(max_depth)
         else:
-            class_counts = [(self.class_counts[key], key) for key in self.class_counts]
-            class_count_nums = [count for count,class_ in class_counts]
-            if len(class_counts) == 1 or class_count_nums.count(max(class_count_nums)) == 1:
-                self.class_counts = {max(class_counts)[1]:max(class_counts)[0]}
-            else:
-                rand_choice = random.choice(class_counts)
-                self.class_counts = {rand_choice[1]:rand_choice[0]}
-            self.impurity = 0
+            self.create_end_node()
             return False
+
+    def create_end_node(self):
+        class_counts = [(self.class_counts[key], key) for key in self.class_counts]
+        class_count_nums = [count for count,class_ in class_counts]
+        if len(class_counts) == 1 or class_count_nums.count(max(class_count_nums)) == 1:
+            self.class_counts = {max(class_counts)[1]:max(class_counts)[0]}
+        else:
+            rand_choice = random.choice(class_counts)
+            self.class_counts = {rand_choice[1]:rand_choice[0]}
+        self.impurity = 0

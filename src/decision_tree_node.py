@@ -98,7 +98,6 @@ class Node:
                         split = self.calc_best_split(possible_splits = [entry for entry in
                         self.possible_splits.to_array() if entry[0] == random_feature])
                     if split is not None:
-                        print(split)
                         self.node_split = split
                         self.low = Node(self.df.select_rows_where(
                             lambda x: x[split[0]] <= split[1]), self.split_metric, self.depth+1)

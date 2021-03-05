@@ -48,11 +48,13 @@ result = [['PassengerId', 'Survived']]
 #     result.append([i+892, output])
 #     i+=1
 
+print("start")
+
 i = 0
-dt = DecisionTree('gini')
+dt = RandomForest(1000,10,1)
 dt.fit(df)
 for test in df2.to_array():
-    pred = dt.classify({df2.columns[i]:test[i] for i in range(len(test))})
+    pred = dt.predict({df2.columns[i]:test[i] for i in range(len(test))})
     result.append([i+892, int(pred)])
     i += 1
 
@@ -63,19 +65,19 @@ for row in result:
 
 print('end')
 
-sets = {'train':DataFrame.from_array([elem for elem in df.to_array() if df.to_array().index(elem)%2 == 0], df.columns), 'test': DataFrame.from_array([elem for elem in df.to_array() if df.to_array().index(elem)%2 == 1], df.columns)}
+# sets = {'train':DataFrame.from_array([elem for elem in df.to_array() if df.to_array().index(elem)%2 == 0], df.columns), 'test': DataFrame.from_array([elem for elem in df.to_array() if df.to_array().index(elem)%2 == 1], df.columns)}
 # sets['train'] = sets['train'].remove_columns(['Age'])
 # sets['test'] = sets['test'].remove_columns(['Age'])
-print(sets['train'].columns)
-total = 0
-correct = 0
-dt = DecisionTree('gini')
-dt.fit(df)
-for test in sets['test'].to_array():
-    total += 1
-    if dt.classify({df.columns[i]:test[i] for i in range(len(test))}) == test[-2]:
-        correct += 1
-print("Decision Tree:"+str((correct/total)))
+# print(sets['train'].columns)
+# total = 0
+# correct = 0
+# dt = DecisionTree('gini')
+# dt.fit(df)
+# for test in sets['test'].to_array():
+#     total += 1
+#     if dt.classify({df.columns[i]:test[i] for i in range(len(test))}) == test[-2]:
+#         correct += 1
+# print("Decision Tree:"+str((correct/total)))
 
 # sets = {'train':DataFrame.from_array([elem for elem in df.to_array() if df.to_array().index(elem)%2 == 0], df.columns), 'test': DataFrame.from_array([elem for elem in df.to_array() if df.to_array().index(elem)%2 == 1], df.columns)}
 
@@ -107,34 +109,34 @@ print("Decision Tree:"+str((correct/total)))
 
 # sets = {'train':DataFrame.from_array([elem for elem in df.to_array() if df.to_array().index(elem)%2 == 0], df.columns), 'test': DataFrame.from_array([elem for elem in df.to_array() if df.to_array().index(elem)%2 == 1], df.columns)}
 
-# for j in [3,5]:
-#     total = 0
-#     correct = 0
+# for j in [5]:
+#     total_te = 0
+#     correct_te = 0
+#     total_tr = 0
+#     correct_tr = 0
 #     rt = RandomForest(100,j,1)
 #     rt.fit(sets['train'])
 #     for test in sets['test'].to_array():
-#         total += 1
+#         total_te += 1
 #         if rt.predict({sets['test'].columns[i]:test[i] for i in range(len(test)-1)}) == test[len(test)-2]:
-#             correct += 1
-#     print(str(j)+" Random Tree(s):"+str((correct/total)))
+#             correct_te += 1
+#     print(str(j)+" Random Tree(s):"+str((correct_te/total_te)))
+#     for test in sets['train'].to_array():
+#         total_tr += 1
+#         if rt.predict({sets['train'].columns[i]:test[i] for i in range(len(test)-1)}) == test[len(test)-2]:
+#             correct_tr += 1
+#     print(str(j)+" Random Tree(s):"+str((correct_tr/total_tr)))
 
 # sets = {'train':DataFrame.from_array([elem for elem in df.to_array() if df.to_array().index(elem)%2 == 0], df.columns), 'test': DataFrame.from_array([elem for elem in df.to_array() if df.to_array().index(elem)%2 == 1], df.columns)}
 # sets['test'] = sets['train']
 
-# total = 0
-# correct = 0
-# NBC = NaiveBayesClassifier(sets['train'], 'Survived')
-# for test in sets['test'].to_array()[0:10]:
-#     total+=1
-#     pred = NBC.classify({sets['test'].columns[i]:test[i] for i in range(len(test)-1)})[1]
-#     if pred == test[-2]:
-#         correct+=1
-# print("Naive Bayes: "+str(correct/total))
+
 
 # total = 0
 # correct = 0
 # NBC = NaiveBayesClassifier(sets['train'], 'Survived')
-# for test in sets['train'].to_array()[0:10]:
+# for test in sets['train'].to_array():
+#     print(sets['test'].to_array().index(test))
 #     total+=1
 #     pred = NBC.classify({sets['train'].columns[i]:test[i] for i in range(len(test)-1)})[1]
 #     if pred == test[-2]:

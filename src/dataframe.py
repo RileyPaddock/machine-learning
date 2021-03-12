@@ -128,35 +128,30 @@ class DataFrame:
         return df
 
     @classmethod
-    def from_csv(cls, filepath, header = False):
+    def from_csv(cls, filepath, data_types, parser, header = False):
+        columns = [column for column in data_types]
         with open(filepath, "r") as file:
             read = file.read()
         data = []
         for elem in read.split('\n'):
             if read.split('\n').index(elem) != 0:
-                quotes = [i for i in range(len(elem)) if elem[i]=='"']
-                first = [elem[0:quotes[0]-1],elem[quotes[0]:quotes[-1]],elem[quotes[-1]+1:len(elem)]]
-                real = [cls.convert_to_correct_type(i) for i in first[0].split(',') if len(i)>0]+[first[1]]+[cls.convert_to_correct_type(s) for s in first[2].split(',')[1:]]
-                # # arr = [[x for x in item.split(',') if len(x)>0] for item in elem.split('"') if len(item)>0]
-                # # final = arr[0]+[float(x) for x in arr[1]]
-                # if len(real)==4:
-                #     print(real)
-                data.append(real)
+                split_line = parser(elem)
+                copy = []
+                for char in split_line:
+                    if len(char) > 0:
+                        copy.append(data_types[columns[split_line.index(char)]](char))
+                    elif data_types[columns[split_line.index(char)]] == str:
+                        copy.append(' ')
+                    else:
+                        copy.append(0)
+                data.append(copy)     
             else:
-                classes = [item for item in elem.split('"') if len(item)>0 and item != ', ']
-                data.append(elem.split(","))
+                data.append(columns)
         if header:
-            return cls.from_array(data, data[0])
+            return cls.from_array(data, columns)
         else:
             return cls.from_array([data[i] for i in range(len(data)) if i != 0], data[0])
 
-    @classmethod
-    def convert_to_correct_type(cls,s):
-        try: 
-            float(s)
-            return float(s)
-        except ValueError:
-            return s
 
     def select_columns(self, columns):
         return DataFrame({column:self.data_dict[column] for column in columns})

@@ -47,15 +47,76 @@ data_types = {
     "Embarked": str
 }
 df = DataFrame.from_csv(filepath, data_types=data_types, parser=parse_line)
-print(df.columns)
-#["PassengerId", "Survived", "Pclass", "Name", "Sex", "Age", "SibSp", "Parch", "Ticket", "Fare", "Cabin", "Embarked"]
 
+def surname(name):
+    stop = name.index(",")
+    surname = []
+    for i in range(1,stop):
+        surname.append(name[i])
+    return ''.join(surname)
+df = df.apply("Name", surname)
+df = df.rename_column("Name","Surname")
+
+Cabin_types = []
+Cabin_nums = []
+for cabin in df.data_dict['Cabin']:
+    cabin_type = []
+    cabin_number = []
+    for char in cabin:
+        try:
+            test = int(char)
+            cabin_number.append(char)
+        except ValueError:
+            if char != ' ':
+                cabin_type.append(char)
+    if len(cabin_type) > 0:
+        Cabin_types.append(''.join(cabin_type))
+    else:
+        Cabin_types.append(None)
+    if len(cabin_number) > 0:
+        Cabin_nums.append(int(''.join(cabin_number)))
+    else:
+        Cabin_nums.append(None)
+
+df = df.append_columns({'CabinType':Cabin_types, 'CabinNumber':Cabin_nums})
+df = df.remove_columns(['Cabin'])
+
+Ticket_types = []
+Ticket_nums = []
+for ticket in df.data_dict['Ticket']:
+    ticket_type = []
+    ticket_number = []
+    try: 
+        split = len(ticket) - ticket[::-1].index(' ')
+    except ValueError:
+        try: 
+            int(ticket[-1])
+            split = 0
+        except ValueError: 
+            split = len(ticket)
+        
+    for i in range(len(ticket)):
+        if i < split:
+            ticket_type.append(ticket[i])
+        else:
+            ticket_number.append(ticket[i])
+    if len(ticket_type) > 0:
+        Ticket_types.append(''.join(ticket_type))
+    else:
+        Ticket_types.append(None)
+    if len(ticket_number) > 0:
+        Ticket_nums.append(int(''.join(ticket_number)))
+    else:
+        Ticket_nums.append(None)
+
+df = df.append_columns({'TicketType':Ticket_types, 'TicketNumber':Ticket_nums})
+df = df.remove_columns(['Ticket'])
+
+df = df.set_new_order(["PassengerId", "Survived", "Pclass", "Surname", "Sex", "Age", "SibSp", "Parch", "TicketType", "TicketNumber", "Fare", "CabinType", "CabinNumber", "Embarked"])
+print(df.columns)
 print(df.to_array()[:5])
-#[[1, 0, 3, "Braund, Mr. Owen Harris", "male", 22, 1, 0, "A/5 21171", 7.25, "", "S"],
-# [2, 1, 1, "Cumings, Mrs. John Bradley (Florence Briggs Thayer)", "female", 38, 1, 0, "PC 17599", 71.2833, "C85", "C"],
-# [3, 1, 3, "Heikkinen, Miss. Laina", "female", 26, 0, 0, "STON/O2. 3101282", 7.925, "", "S"]
-# [4, 1, 1, "Futrelle, Mrs. Jacques Heath (Lily May Peel)", "female", 35, 1, 0, "113803", 53.1, "C123", "S"]
-# [5, 0, 3, "Allen, Mr. William Henry", "male", 35, 0, 0, "373450", 8.05, "", "S"]]
+
+
 
 
 

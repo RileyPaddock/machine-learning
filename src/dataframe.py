@@ -25,6 +25,18 @@ class DataFrame:
         new_columns[column2_indx] = self.columns[column1_indx]
         return DataFrame(self.data_dict, new_columns)
 
+    def rename_column(self,old_name,new_name):
+        new_dict = {}
+        new_columns = []
+        for name in self.columns:
+            if name != old_name:
+                new_dict[name] = self.data_dict[name]
+                new_columns.append(name)
+            else:
+                new_dict[new_name] = self.data_dict[name]
+                new_columns.append(new_name)
+
+        return DataFrame(new_dict, new_columns)
 
     def rename_columns(self,new_columns):
         new_dict = {}
@@ -144,7 +156,15 @@ class DataFrame:
                         copy.append(' ')
                     else:
                         copy.append(0)
-                data.append(copy)     
+                for i in range(len(copy)):
+                    if isinstance(copy[i],data_types[columns[i]]):
+                        pass
+                    else:
+                        if data_types[columns[i]] == str:
+                            copy[i] = ' '
+                        else:
+                            copy[i] = 0
+                data.append(copy)
             else:
                 data.append(columns)
         if header:
@@ -188,6 +208,9 @@ class DataFrame:
 
     def sorted_indicies(self, arr):
         return [y for x,y in sorted([(arr[i],i) for i in range(len(arr))])]
+
+    def set_new_order(self,new_order):
+        return DataFrame(self.data_dict, new_order)
 
 
 

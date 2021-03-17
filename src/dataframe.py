@@ -173,7 +173,7 @@ class DataFrame:
             return cls.from_array([data[i] for i in range(len(data)) if i != 0], data[0])
 
 
-    def select_columns(self, columns):
+    def select(self, columns):
         return DataFrame({column:self.data_dict[column] for column in columns})
         #returns a new dataframe of only columns in columns
 
@@ -186,7 +186,7 @@ class DataFrame:
         all_indicies.remove(index)
         return self.select_rows(all_indicies)
 
-    def select_rows_where(self, param):
+    def where(self, param):
         arr = self.to_array()
         indicies = []
         for row in arr:
@@ -196,7 +196,7 @@ class DataFrame:
         return self.select_rows(indicies)
 
 
-    def order_by(self, column, ascending):
+    def order_by(self, column, ascending = True):
         if ascending:
             order = self.sorted_indicies(self.data_dict[column])
             return DataFrame.from_array([self.to_array()[i] for i in order], self.columns)
@@ -211,6 +211,38 @@ class DataFrame:
 
     def set_new_order(self,new_order):
         return DataFrame(self.data_dict, new_order)
+
+    def group_by(self,column):
+        distinct = []
+        for entry in self.data_dict[column]:
+            if entry not in distinct:
+                distinct.append(entry)
+        
+        new = {d:[[] for _ in range(len(self.columns)-1)] for d in distinct}
+        
+        for entry in self.to_array():
+            for elem in entry:
+                if elem not in distinct:
+                    new[entry[self.columns.index(column)]][entry.index(elem)-1].append(elem)
+
+        new_array = [[key]+new[key] for key in new]
+
+        return DataFrame.from_array(new_array, self.columns)
+
+    def aggregate(self,column, method):
+        if method == 'max':
+            f = max
+        elif method == 'min':
+            f = min
+        elif method == 'count':
+            f = len
+        elif method == 'sum':
+            f = sum 
+        elif method == 'avg':
+            f = lambda x: sum(x)/len(x)
+        return self.apply(column,f)
+
+        
 
 
 

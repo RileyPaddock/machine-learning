@@ -1,2 +1,2 @@
-run = "python tests/test_dataframe.py"
+run = "python analysis/titanic_analysis.py"
 language = "python3" # optional

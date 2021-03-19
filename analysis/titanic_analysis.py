@@ -113,10 +113,12 @@ df = df.append_columns({'TicketType':Ticket_types, 'TicketNumber':Ticket_nums})
 df = df.remove_columns(['Ticket'])
 
 df = df.set_new_order(["PassengerId", "Survived", "Pclass", "Surname", "Sex", "Age", "SibSp", "Parch", "TicketType", "TicketNumber", "Fare", "CabinType", "CabinNumber", "Embarked"])
-print(df.columns)
-print(df.to_array()[:5])
-
-
+#["Pclass","Sex", "SibSp", "Parch", "CabinType", "Embarked"]
+for column in ["Pclass","Sex", "SibSp", "Parch", "CabinType", "Embarked"]:
+    print('\n')
+    print(column)
+    for elem in df.select([column,'Survived','PassengerId']).group_by(column).aggregate('Survived','avg').aggregate('PassengerId','count').to_array():
+        print('\t'+str(elem))
 
 
 

@@ -214,18 +214,24 @@ class DataFrame:
 
     def group_by(self,column):
         distinct = []
+        col_i = self.columns.index(column)
         for entry in self.data_dict[column]:
             if entry not in distinct:
                 distinct.append(entry)
         
         new = {d:[[] for _ in range(len(self.columns)-1)] for d in distinct}
-        
         for entry in self.to_array():
-            for elem in entry:
-                if elem not in distinct:
-                    new[entry[self.columns.index(column)]][entry.index(elem)-1].append(elem)
+            for elem_i,elem in enumerate(entry):
+                if elem_i != col_i:
+                    index = elem_i if elem_i < col_i else elem_i-1
+                    new[entry[col_i]][index].append(elem)
 
-        new_array = [[key]+new[key] for key in new]
+
+        
+
+        new_array = [new[key][:col_i]+[key]+new[key][col_i:] for key in new]
+
+        
 
         return DataFrame.from_array(new_array, self.columns)
 
@@ -242,6 +248,11 @@ class DataFrame:
             f = lambda x: sum(x)/len(x)
         return self.apply(column,f)
 
+    def query(self,query):
+        keyword = query[:query.index(' ')]
+        columns = query[query.index(' ')+1:]
+        if keyword == 'SELECT':
+            return self.select(columns.split(', '))
         
 
 

@@ -212,23 +212,45 @@ class DataFrame:
     def set_new_order(self,new_order):
         return DataFrame(self.data_dict, new_order)
 
-    def group_by(self,column):
+    def group_by(self,column, int_range = None):
         distinct = []
         col_i = self.columns.index(column)
         for entry in self.data_dict[column]:
             if entry not in distinct:
                 distinct.append(entry)
+
+        if isinstance(int_range,int):
+            active = int(min(distinct))
+            ranges = []
+            while active+int_range < max(distinct):
+                bounds = (active,active+int_range-1)
+                for elem in distinct:
+                    if elem in [x for x in range(bounds[0],bounds[1]+1)]:
+                        ranges.append(bounds)
+                        break
+                active = active+int_range
+            
+            for elem in distinct:
+                    if elem in [x for x in range(active,int(max(distinct)))]:
+                        ranges.append((active,int(max(distinct))))
+                        break
+            distinct = ranges
+
+        if isinstance(int_range,list):
+            distinct = int_range
         
         new = {d:[[] for _ in range(len(self.columns)-1)] for d in distinct}
         for entry in self.to_array():
             for elem_i,elem in enumerate(entry):
                 if elem_i != col_i:
                     index = elem_i if elem_i < col_i else elem_i-1
-                    new[entry[col_i]][index].append(elem)
-
-
+                    if int_range is not None:
+                        for key in new:
+                            if entry[col_i] <= key[1] and entry[col_i] >= key[0]:
+                                new[key][index].append(elem)
+                    else:
+                        new[entry[col_i]][index].append(elem)
         
-
         new_array = [new[key][:col_i]+[key]+new[key][col_i:] for key in new]
 
         
@@ -249,10 +271,45 @@ class DataFrame:
         return self.apply(column,f)
 
     def query(self,query):
-        keyword = query[:query.index(' ')]
-        columns = query[query.index(' ')+1:]
-        if keyword == 'SELECT':
-            return self.select(columns.split(', '))
+        query.replace('ORDER BY','ORDER_BY')
+        correct = [elem.replace(',','') for elem in query.split(' ')]
+        
+        command = self
+        keywords = []
+        key_indices = []
+        for word in ['ORDER_BY','ASC','DESC','SELECT']:
+            try:
+                keywords.append((word,correct.index(word)))
+                key_indices.append(correct.index(word))
+            except ValueError:
+                pass
+        keywords.append(('STOP',len(correct)))
+        key_indices.append(len(correct))
+        key_indices = sorted(key_indices)
+
+        for i,keyword in enumerate(keywords):
+            try:
+                next_keyword  = sorted([j for j in key_indices if j > keyword[1]])[0]
+            except IndexError:
+                next_keyword = len(keywords)
+                
+            if keyword[0] == 'ORDER_BY':
+                end = [key[1] for key in keywords if key[1]>keyword[1] and key[0] != 'ASC' and key[0] != 'DESC'][0]
+                reversed_order = correct[keyword[1]+1:end][::-1]
+                keys = [(elem,j) for j,elem in enumerate(reversed_order) if elem == 'ASC' or elem == 'DESC']
+                keys.append(('END',len(reversed_order)))
+                
+                for i,ordering in enumerate(keys):
+                    if ordering[0] == 'ASC':
+                        for column in reversed_order[ordering[1]+1:keys[i+1][1]]:
+                            command = command.order_by(column)
+                    elif ordering[0] == 'DESC':
+                        for column in reversed_order[ordering[1]+1:keys[i+1][1]]:
+                            command = command.order_by(column,False)
+            if keyword[0] == 'SELECT':
+                command = command.select(correct[keyword[1]+1:next_keyword])
+
+        return command
         
 
 

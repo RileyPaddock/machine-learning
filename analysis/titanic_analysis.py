@@ -113,7 +113,7 @@ df = df.append_columns({'TicketType':Ticket_types, 'TicketNumber':Ticket_nums})
 df = df.remove_columns(['Ticket'])
 
 df = df.set_new_order(["PassengerId", "Survived", "Pclass", "Surname", "Sex", "Age", "SibSp", "Parch", "TicketType", "TicketNumber", "Fare", "CabinType", "CabinNumber", "Embarked"])
-#["Pclass","Sex", "SibSp", "Parch", "CabinType", "Embarked"]
+# ["Pclass","Sex", "SibSp", "Parch", "CabinType", "Embarked"]
 for column in ["Pclass","Sex", "SibSp", "Parch", "CabinType", "Embarked"]:
     print('\n')
     print(column)
@@ -121,7 +121,16 @@ for column in ["Pclass","Sex", "SibSp", "Parch", "CabinType", "Embarked"]:
         print('\t'+str(elem))
 
 
+print('\n')
+print('Age')
+for elem in df.select(['Age','Survived','PassengerId']).group_by('Age',5).aggregate('Survived','avg').aggregate('PassengerId','count').to_array():
+    print('\t'+str(elem))
 
+print('\n')
+print('Fare')
+#(0-5, 5-10, 10-20, 20-50, 50-100, 100-200, 200+)
+for elem in df.select(['Fare','Survived','PassengerId']).group_by('Fare',[(0,4),(5,9),(10,19),(20,49),(50,99),(100,199),(200,400)]).aggregate('Survived','avg').aggregate('PassengerId','count').to_array():
+    print('\t'+str(elem))
 
 # df = DataFrame.from_csv(filepath)
 # df = df.remove_columns(["Name", "Ticket", "Fare", "Cabin"])

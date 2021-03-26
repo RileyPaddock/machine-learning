@@ -48,6 +48,12 @@ data_types = {
 }
 df = DataFrame.from_csv(filepath, data_types=data_types, parser=parse_line)
 
+df = df.apply('Sex', lambda s: 0 if s == 'male' else 1)
+ages = [entry for entry in df.data_dict['Age'] if entry is not None]
+
+avg = sum(ages)/len(ages)
+df = df.apply('Age', lambda i: i if isinstance(i, float) else avg)
+
 def surname(name):
     stop = name.index(",")
     surname = []
@@ -111,58 +117,49 @@ for ticket in df.data_dict['Ticket']:
 
 df = df.append_columns({'TicketType':Ticket_types, 'TicketNumber':Ticket_nums})
 df = df.remove_columns(['Ticket'])
-
-df = df.set_new_order(["PassengerId", "Survived", "Pclass", "Surname", "Sex", "Age", "SibSp", "Parch", "TicketType", "TicketNumber", "Fare", "CabinType", "CabinNumber", "Embarked"])
-# ["Pclass","Sex", "SibSp", "Parch", "CabinType", "Embarked"]
-for column in ["Pclass","Sex", "SibSp", "Parch", "CabinType", "Embarked"]:
-    print('\n')
-    print(column)
-    for elem in df.select([column,'Survived','PassengerId']).group_by(column).aggregate('Survived','avg').aggregate('PassengerId','count').to_array():
-        print('\t'+str(elem))
+df = df.select(['Survived','PassengerId','Pclass','Sex','Age','SibSp','Parch','Fare','CabinNumber','CabinType','Embarked','TicketType','TicketNumber'])
+df = df.create_dummy_variables('SibSp',[0],False)
+df = df.create_dummy_variables('Parch',[0])
+df = df.create_dummy_variables('CabinType',['A','B','C','D','E','F','G',None,'T'])
+df = df.create_dummy_variables('Embarked')
 
 
-print('\n')
-print('Age')
-for elem in df.select(['Age','Survived','PassengerId']).group_by('Age',5).aggregate('Survived','avg').aggregate('PassengerId','count').to_array():
-    print('\t'+str(elem))
 
-print('\n')
-print('Fare')
-#(0-5, 5-10, 10-20, 20-50, 50-100, 100-200, 200+)
-for elem in df.select(['Fare','Survived','PassengerId']).group_by('Fare',[(0,4),(5,9),(10,19),(20,49),(50,99),(100,199),(200,400)]).aggregate('Survived','avg').aggregate('PassengerId','count').to_array():
-    print('\t'+str(elem))
 
-# df = DataFrame.from_csv(filepath)
-# df = df.remove_columns(["Name", "Ticket", "Fare", "Cabin"])
-# pred = df.filter_columns(['Survived'])
-# df = df.remove_columns(['Survived','PassengerId'])
-# df = df.append_columns(pred.data_dict)
-# df = df.apply('Sex', lambda s: 0 if s == 'male' else 1)
-# df = df.apply('Embarked', lambda s: 0 if s =='S' else 1 if s == 'C' else 2)
-# df = df.apply('Age', lambda i: i if isinstance(i, float) else 0)
+def run_lin_regress(columns):
+    df2 = df.select(columns)
 
-# print(df.columns)
+    df_train = DataFrame.from_array([df2.to_array()[i] for i in range(len(df2.to_array())) if i < 500],df2.columns)
 
-# path_to_datasets = '/home/runner/machine-learning/datasets/titanic/'
-# filename = 'unkowns_to_predict.csv' 
-# filepath = path_to_datasets + filename
+    df_test = DataFrame.from_array([df2.to_array()[i] for i in range(len(df2.to_array())) if i >= 500],df2.columns)
 
-# df2 = DataFrame.from_csv(filepath)
-# df2 = df2.remove_columns(["Name", "Ticket", "Fare", "Cabin", "PassengerId"])
-# df2 = df2.apply('Sex', lambda s: 0 if s == 'male' else 1)
-# df2 = df2.apply('Embarked', lambda s: 0 if s =='S' else 1 if s == 'C' else 2)
-# df2= df2.apply('Age', lambda i: i if isinstance(i, float) else 0)
 
-# result = [['PassengerId', 'Survived']]
 
-# # liR = LinearRegressor(df, 'Survived')
-# # print(liR.coefficients)
-# # i = 0
-# # for test in df2.to_array():
-# #     pred = liR.predict({df2.columns[i]:test[i] for i in range(len(test)-1)})
-# #     output = 1 if pred >= 0.5 else 0
-# #     result.append([i+892, output])
-# #     i+=1
+    liR = LinearRegressor(df_train, 'Survived')
+    
+    i = 0
+    debug = []
+    for i,test in enumerate(df_train.to_array()):
+        pred = liR.predict({df_train.columns[i]:test[i] for i in range(len(test)-1)})
+        output = 1 if pred >= 0.5 else 0
+        if output != test[-1]:
+            debug.append(i)
+
+    print("\nTrain Accuracy: "+str(1-len(debug)/(500)))
+
+    debug = []
+    for i,test in enumerate(df_test.to_array()):
+        pred = liR.predict({df_test.columns[i]:test[i] for i in range(len(test)-1)})
+        output = 1 if pred >= 0.5 else 0
+        if output != test[-1]:
+            debug.append(i)
+
+
+    print("Test Accuracy: "+str(1-len(debug)/(891-500))+"\n")
+    print(liR.coefficients)
+#
+for column_set in [['Sex','Survived'],['Pclass','Sex','Survived'],['Sex','Pclass','Fare','Age','SibSp','SibSp0','Parch0','Survived'],['Sex','Pclass','Fare','Age','SibSp','SibSp0','Parch0','EmbarkedC','Embarked ','EmbarkedQ','EmbarkedS','Survived'],['Sex','Pclass','Fare','Age','SibSp','SibSp0','Parch0','EmbarkedC','Embarked ','EmbarkedQ','EmbarkedS','CabinTypeA', 'CabinTypeB', 'CabinTypeC', 'CabinTypeD', 'CabinTypeE', 'CabinTypeF', 'CabinTypeG', 'CabinTypeNone','Survived'],['Sex','Pclass','Fare','Age','SibSp','SibSp0','Parch0','EmbarkedC','Embarked ','EmbarkedQ','EmbarkedS','CabinTypeA', 'CabinTypeB', 'CabinTypeC', 'CabinTypeD', 'CabinTypeE', 'CabinTypeF', 'CabinTypeG', 'CabinTypeNone','CabinTypeT','Survived']]:
+    run_lin_regress(column_set)
 
 # print("start")
 

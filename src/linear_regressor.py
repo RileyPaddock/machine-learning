@@ -1,8 +1,10 @@
 from matrix import Matrix
 from dataframe import DataFrame
+import numpy as np 
 class LinearRegressor:
     def __init__(self,data_class, prediction_column):
-        self.data = data_class.append_columns({'constant': [1 for _ in range(len(data_class.to_array()))]})
+        self.data = data_class
+        #self.data = data_class.append_columns({'constant': [1 for _ in range(len(data_class.to_array()))]})
         self.prediction_column = prediction_column
         self.coefficients = self.solve_coefficients()
 
@@ -10,7 +12,9 @@ class LinearRegressor:
         result = {}
         Inputs = Matrix(self.data.remove_columns([self.prediction_column]).to_array())
         Results = Matrix(self.data.filter_columns([self.prediction_column]).to_array())
+
         x_tpose = Inputs.transpose()
+
         coefficients = ((x_tpose @ Inputs).inverse() @ (x_tpose @ Results)).elements
         i = 0
         for key in self.data.remove_columns([self.prediction_column]).data_dict:

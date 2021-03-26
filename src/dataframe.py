@@ -78,26 +78,28 @@ class DataFrame:
                 return []
 
 
-    def create_dummy_variables(self):
+    def create_dummy_variables(self,column,dummies = None,del_orig = True):
         new_dict = self.data_dict
-        data_columns = []
-        for key in new_dict:
-            if isinstance(new_dict[key][0],str) or isinstance(new_dict[key][0],list):
-                data_columns.append(key)
-        for key in data_columns:
-            if isinstance(new_dict[key][0], str):
-                for data in self.data_dict[key]:
-                    new_dict[data] = [1 if data1 == data else 0 for data1 in self.data_dict[key]]
-            elif isinstance(new_dict[key][0],list):
-                entries = []
-                for data_set in new_dict[key]:
-                    for entry in data_set:
-                        if entry not in entries:
-                            entries.append(entry)
-                data = self.get_data_from_list_entry(new_dict[key])
-                for i in range(len(entries)):
-                    new_dict[entries[i]] = data[i]
-            del new_dict[key] 
+        
+        if isinstance(new_dict[column][0],list):
+            entries = []
+            for data_set in new_dict[column]:
+                for entry in data_set:
+                    if entry not in entries:
+                        entries.append(entry)
+            data = self.get_data_from_list_entry(new_dict[column])
+            for i in range(len(entries)):
+                new_dict[entries[i]] = data[i]
+        else:
+            if dummies is None:
+                for data in self.data_dict[column]:
+                    new_dict[column+str(data)] = [1 if data1 == data else 0 for data1 in self.data_dict[column]]
+            else:
+                for data in dummies:
+                    new_dict[column+str(data)] = [1 if data1 == data else 0 for data1 in self.data_dict[column]]
+        if del_orig:
+            del new_dict[column] 
+
         return DataFrame(new_dict)
 
     def get_data_from_list_entry(self,data):
@@ -162,6 +164,11 @@ class DataFrame:
                     else:
                         if data_types[columns[i]] == str:
                             copy[i] = ' '
+                        elif data_types[columns[i]] == float:
+                            if isinstance(copy[i],int):
+                                copy[i] = float(copy[i])
+                            else:
+                                copy[i] = 0
                         else:
                             copy[i] = 0
                 data.append(copy)
@@ -311,8 +318,3 @@ class DataFrame:
 
         return command
         
-
-
-
-
-    

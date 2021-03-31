@@ -7,7 +7,11 @@ class DataFrame:
         self.data_dict = {}
         for column in self.columns:
             self.data_dict[column] = dict[column]
-        
+    
+
+    def copy(self):
+        return DataFrame.from_array(self.to_array(),self.columns)
+
     def to_array(self):
         arr = []
         for i in range(len(self.data_dict[self.columns[0]])):
@@ -129,7 +133,7 @@ class DataFrame:
         new_dict = self.data_dict
         for key in new_dict_data:
             new_dict[key] = new_dict_data[key]
-        return DataFrame(new_dict)
+        return DataFrame(new_dict,column_order)
    
     @classmethod
     def from_array(cls, arr, columns):

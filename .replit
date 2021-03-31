@@ -1,2 +1,2 @@
-run = "python analysis/titanic_analysis.py"
+run = "python tests/test_logistic_regressor.py"
 language = "python3" # optional

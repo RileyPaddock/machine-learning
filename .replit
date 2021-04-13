@@ -1,2 +1,2 @@
-run = "python tests/test_logistic_regressor.py"
+run = "python src/neural_network.py"
 language = "python3" # optional

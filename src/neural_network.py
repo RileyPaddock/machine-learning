@@ -29,33 +29,48 @@ class NeuralNetwork:
 
     def calc_gradient(self, data_point):
         result = {edge:self.dE_dw(edge,data_point) for edge in self.weights}
-        print("\tdw_01 = "+str(round(result[(0,1)],4))+", dw_12 = "+str(round(result[(1,2)],4)))
+        #print("\tdw_01 = "+str(round(result[(0,1)],4))+", dw_12 = "+str(round(result[(1,2)],4)))
         return result
 
     def dE_dw(self,stop_edge,data_point):
-        edge_path = [[key for key in self.weights][-1]]
-        while edge_path[-1][0] != stop_edge[0]:
-            for edge in self.weights:
-                if edge[1] == edge_path[-1][0]:
-                    edge_path.append(edge)
-        result = self.dE_start(data_point)
-        for edge in edge_path:
-            if edge == stop_edge:
-                if edge[0] == 0:
-                    result *= self.nodes[edge[0]].activity(data_point['input'][0])
-                else:
-                    result *= self.nodes[edge[0]].activity(self.i(edge[0],data_point['input']))
+        return self.dE_start(data_point)*self.di_dw(stop_edge,self.num_nodes[-1],data_point)
+
+    def di_dw(self,stop_edge,n,data_point):
+        edge_path = self.find_edge_path(stop_edge)
+        relevant_edges = [edge for edge in edge_path if edge[1] == n]
+        if stop_edge in relevant_edges:
+            if stop_edge[0] == 0:
+                return self.nodes[stop_edge[0]].activity(data_point['input'][0])
             else:
-                result *= self.weights[edge]*self.nodes[edge[0]].activation_derivative(self.i(edge[0],data_point['input']))
-        return result
+                return self.nodes[stop_edge[0]].activity(self.i(stop_edge[0],data_point['input']))
+        else:
+            return sum([self.weights[edge]*self.nodes[edge[0]].activation_derivative(self.i(edge[0],data_point['input']))*self.di_dw(stop_edge,edge[0],data_point) for edge in relevant_edges])
+
+    def find_edge_path(self,stop_edge):
+        edge_queue = [stop_edge]
+        edge_path = [stop_edge]
+        while len(edge_queue)>0:
+            for edge in self.weights:
+                if edge[0] == edge_queue[0][1] and edge not in edge_path:
+                    edge_queue.append(edge)
+            if edge_queue[0] not in edge_path:
+                edge_path.append(edge_queue[0])
+            del edge_queue[0]
+
+        return edge_path[::-1]
     
     def i(self,node,input,result = 1):
         edges = [edge for edge in self.weights if edge[1] == node]
-        for edge in edges:
+        if len(edges) == 1:
+            edge = edges[0]
+
             if edge[0]==0:
                 result = self.weights[edge]*self.nodes[0].activity(input[0])
             else:
                 result *= self.weights[edge]*self.nodes[edge[0]].activity(self.i(edge[0],input,result))
+        else:
+            result = sum([self.weights[edge]*self.nodes[edge[0]].activity(self.i(edge[0],input,result)) for edge in edges])
+
         return result
 
 
@@ -72,10 +87,10 @@ class NeuralNetwork:
         gradient = self.calc_gradient(data_point)
         new_weights = {key:self.weights[key] - (learning_rate * gradient[key]) for key in self.weights}
         self.weights = new_weights
-        print("\tw_01 = "+str(round(self.weights[(0,1)],4))+", w_12 = "+str(round(self.weights[(1,2)],4)))
+        #print("\tw_01 = "+str(round(self.weights[(0,1)],4))+", w_12 = "+str(round(self.weights[(1,2)],4)))
 
 
-weights = {(0,1): 1, (1,2): 1}
+weights = {(0,1): 1, (1,2): 1, (1,3): 1, (2,4): 1, (3,4): 1}
 
 def linear_function(x):
         return x
@@ -91,7 +106,7 @@ def sin(x):
 def sin_derivative(x):
     return math.cos(x)
 
-activation_types = ['linear', 'sin', 'linear']
+activation_types = ['linear', 'linear', 'linear', 'linear', 'linear']
 activation_functions = {
     'linear': {
         'function': linear_function,
@@ -105,12 +120,7 @@ activation_functions = {
 
 nn = NeuralNetwork(weights, activation_types, activation_functions)
 
-data_points = [
-    {'input': [1,0], 'output': [0.1]},
-    {'input': [1,1], 'output': [0.2]},
-    {'input': [1,2], 'output': [0.4]},
-    {'input': [1,3], 'output': [0.7]}
-    ]
+
 data_points = [{'input': [0],'output': [0.0]},
  {'input': [1], 'output':[1.44]},
  {'input': [2], 'output':[2.52]},
@@ -132,15 +142,17 @@ data_points = [{'input': [0],'output': [0.0]},
  {'input': [18], 'output':[1.24]},
  {'input': [19], 'output':[-0.23]}]
 
-for i in range(1,1000):
-    
-    err = 0
-    for data_point in data_points:
-        print('loop '+str(i)+', point '+str((data_point['input'][0],data_point['output'][0])))
-        nn.update_weights(data_point)
-        err += nn.calc_squared_error(data_point)
-        
-        
-        print('\n')
 
-print(nn.weights)
+print(nn.dE_dw((0,1),{'input': [1],'output': [1]},))
+# for i in range(1,1000):
+    
+#     err = 0
+#     for data_point in data_points:
+#         #print('loop '+str(i)+', point '+str((data_point['input'][0],data_point['output'][0])))
+#         nn.update_weights(data_point)
+#         err += nn.calc_squared_error(data_point)
+        
+        
+#         print('\n')
+
+# print(nn.weights)

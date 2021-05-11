@@ -1,2 +1,2 @@
-run = "python src/neural_network.py"
+run = "python src/K_means_cluster.py"
 language = "python3" # optional

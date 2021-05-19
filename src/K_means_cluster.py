@@ -1,7 +1,10 @@
+import matplotlib.pyplot as plt
+import random
 class KMeans:
-    def __init__(self, initial_clusters, data):
-        self.clusters = initial_clusters
+    def __init__(self, k, data):
+        self.clusters = {i:[j for j in range(len(data)) if j%i == 0] for i in range(1,k+1)}
         self.data = data
+        self.data_columns = {i:[data[x][i] for x in range(len(data))] for i in range(len(data[0]))}
         self.centers = self.calc_averages()
 
     def calc_averages(self):
@@ -39,6 +42,15 @@ class KMeans:
             self.centers = self.calc_averages()
             if self.centers == old_centers:
                 break
+    
+    def elbow_calcs(self):
+        distance = 0
+        for i in range(len(self.data)):
+            for j in self.clusters:
+                if i in self.clusters[j]:
+                    distance += self.calc_euclidian_distance(self.centers[j],self.data[i])
+        return distance
+
 
 
 
@@ -65,13 +77,15 @@ data = [[0.14, 0.14, 0.28, 0.44],
         [0.22, 0.07, 0.4, 0.38],
         [0.2, 0.18, 0.3, 0.4]]
 
-initial_clusters = {
-    1: [0,3,6,9,12,15,18],
-    2: [1,4,7,10,13,16],
-    3: [2,5,8,11,14,17]}
+x_coords = [x for x in range(1,6)]
+y_coords = []
+for k in [x for x in range(1,6)]:
+    k_means = KMeans(k, data)
+    k_means.run()
+    y_coords.append(k_means.elbow_calcs())
 
-k_means = KMeans(initial_clusters, data)
-
-k_means.run()
-
-print(k_means.clusters)
+plt.plot(x_coords, y_coords)
+plt.xlabel('k')
+plt.ylabel('sum_squared_error')
+plt.title('Best size k')
+plt.savefig('Elbow_Method.png')
